@@ -1,0 +1,21 @@
+{
+    "extends": "@tsconfig/node22/tsconfig.json",
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node10",
+        "outDir": "./build/",
+        "rootDir": "./",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "types": ["node", "@iobroker/types"]
+    },
+    "include": ["src/**/*.ts", "test/**/*.ts"],
+    "exclude": ["build/**", "node_modules/**"]
+}

@@ -1,0 +1,306 @@
+{
+    "common": {
+        "name": "windhager",
+        "version": "0.1.0",
+        "news": {
+            "0.1.0": {
+                "en": "Initial beta: read-only discovery and polling, opt-in verified writes",
+                "pl": "Pierwsza wersja beta: odczyt, wykrywanie i odpytywanie; zapis tylko po jawnym włączeniu",
+                "de": "Erste Beta: Auslesen, Erkennung und Polling; Schreiben nur nach ausdrücklicher Freigabe"
+            }
+        },
+        "title": "Windhager InfoWIN Touch",
+        "titleLang": {
+            "en": "Windhager InfoWIN Touch",
+            "pl": "Windhager InfoWIN Touch",
+            "de": "Windhager InfoWIN Touch"
+        },
+        "desc": {
+            "en": "Local, capability-driven integration of Windhager InfoWIN Touch / MES INFINITY heating controllers (read-only by default)",
+            "pl": "Lokalna integracja sterowników grzewczych Windhager InfoWIN Touch / MES INFINITY (domyślnie tylko odczyt)",
+            "de": "Lokale Integration von Windhager InfoWIN Touch / MES INFINITY Heizungsreglern (standardmäßig nur lesend)"
+        },
+        "authors": ["piotr-siedlak <siedlak.piotr@gmail.com>"],
+        "keywords": ["windhager", "infowin", "heating", "boiler", "gas", "pellet"],
+        "licenseInformation": {
+            "license": "MIT",
+            "type": "free"
+        },
+        "platform": "Javascript/Node.js",
+        "icon": "windhager.svg",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/piotr-siedlak/ioBroker.windhager/main/admin/windhager.svg",
+        "readme": "https://github.com/piotr-siedlak/ioBroker.windhager/blob/main/README.md",
+        "loglevel": "info",
+        "tier": 3,
+        "mode": "daemon",
+        "type": "climate-control",
+        "compact": false,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "adminUI": {
+            "config": "json"
+        },
+        "messagebox": true,
+        "supportedMessages": {
+            "custom": false
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=5.0.19"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=6.17.14"
+            }
+        ],
+        "restartAdapters": []
+    },
+    "native": {
+        "host": "",
+        "protocol": "http",
+        "port": 80,
+        "username": "USER",
+        "password": "",
+        "verifyTls": true,
+        "timeoutMs": 15000,
+        "maxConcurrency": 2,
+        "pollFastSec": 30,
+        "pollNormalSec": 60,
+        "pollSlowSec": 300,
+        "enableFast": true,
+        "enableNormal": true,
+        "enableSlow": true,
+        "pollLon": false,
+        "fastGroups": "",
+        "excludedNodes": "",
+        "exposeRaw": false,
+        "cacheMaxAgeHours": 168,
+        "writesEnabled": false,
+        "writeAllowlist": "",
+        "verifyWrites": true
+    },
+    "encryptedNative": ["password"],
+    "protectedNative": ["password"],
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Controller reachable",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.controllerModel",
+            "type": "state",
+            "common": {
+                "role": "text",
+                "name": "Controller model (as reported)",
+                "type": "string",
+                "read": true,
+                "write": false,
+                "def": ""
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.firmwareVersion",
+            "type": "state",
+            "common": {
+                "role": "text",
+                "name": "Controller firmware/API version (as reported)",
+                "type": "string",
+                "read": true,
+                "write": false,
+                "def": ""
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.protocolVersion",
+            "type": "state",
+            "common": {
+                "role": "text",
+                "name": "Detected API family",
+                "type": "string",
+                "read": true,
+                "write": false,
+                "def": ""
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.lastSuccessfulPoll",
+            "type": "state",
+            "common": {
+                "role": "date",
+                "name": "Last successful poll (ISO)",
+                "type": "string",
+                "read": true,
+                "write": false,
+                "def": ""
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.lastError",
+            "type": "state",
+            "common": {
+                "role": "text",
+                "name": "Last error",
+                "type": "string",
+                "read": true,
+                "write": false,
+                "def": ""
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics",
+            "type": "channel",
+            "common": {
+                "name": "Diagnostics"
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics.requests",
+            "type": "state",
+            "common": {
+                "role": "value",
+                "name": "HTTP requests",
+                "type": "number",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics.failures",
+            "type": "state",
+            "common": {
+                "role": "value",
+                "name": "Failed requests",
+                "type": "number",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics.lastLatencyMs",
+            "type": "state",
+            "common": {
+                "role": "value",
+                "name": "Last latency",
+                "type": "number",
+                "unit": "ms",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics.avgLatencyMs",
+            "type": "state",
+            "common": {
+                "role": "value",
+                "name": "Average latency",
+                "type": "number",
+                "unit": "ms",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics.consecutiveFailures",
+            "type": "state",
+            "common": {
+                "role": "value",
+                "name": "Consecutive failures",
+                "type": "number",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics.datapoints",
+            "type": "state",
+            "common": {
+                "role": "value",
+                "name": "Discovered datapoints",
+                "type": "number",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics.catalogAgeHours",
+            "type": "state",
+            "common": {
+                "role": "value",
+                "name": "Discovery age",
+                "type": "number",
+                "unit": "h",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "diagnostics.rescan",
+            "type": "state",
+            "common": {
+                "role": "button",
+                "name": "Rescan controller structure",
+                "type": "boolean",
+                "read": false,
+                "write": true,
+                "def": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "modules",
+            "type": "folder",
+            "common": {
+                "name": "Discovered modules and datapoints"
+            },
+            "native": {}
+        },
+        {
+            "_id": "schedules",
+            "type": "folder",
+            "common": {
+                "name": "Time programs (read-only, experimental)"
+            },
+            "native": {}
+        }
+    ]
+}

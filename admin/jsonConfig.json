@@ -1,0 +1,266 @@
+{
+    "type": "tabs",
+    "items": {
+        "tabConn": {
+            "type": "panel",
+            "label": "Connection",
+            "items": {
+                "host": {
+                    "type": "text",
+                    "label": "Host / IP address",
+                    "help": "IP address or host name of the InfoWIN Touch (no http://)",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 4
+                },
+                "protocol": {
+                    "type": "select",
+                    "label": "Transport",
+                    "options": [
+                        {
+                            "label": "HTTP",
+                            "value": "http"
+                        },
+                        {
+                            "label": "HTTPS",
+                            "value": "https"
+                        }
+                    ],
+                    "xs": 6,
+                    "sm": 3,
+                    "md": 2
+                },
+                "port": {
+                    "type": "number",
+                    "label": "Port",
+                    "min": 1,
+                    "max": 65535,
+                    "xs": 6,
+                    "sm": 3,
+                    "md": 2
+                },
+                "username": {
+                    "type": "text",
+                    "label": "User name",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3
+                },
+                "password": {
+                    "type": "password",
+                    "label": "Password",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3
+                },
+                "verifyTls": {
+                    "type": "checkbox",
+                    "label": "Verify TLS certificate",
+                    "help": "Only relevant for HTTPS. Keep enabled unless you fully trust your network.",
+                    "newLine": true,
+                    "xs": 12
+                },
+                "timeoutMs": {
+                    "type": "number",
+                    "label": "Request timeout (ms)",
+                    "min": 1000,
+                    "max": 120000,
+                    "newLine": true,
+                    "xs": 6,
+                    "sm": 4,
+                    "md": 3
+                },
+                "maxConcurrency": {
+                    "type": "number",
+                    "label": "Parallel requests",
+                    "help": "The controller answers sequentially; 1-2 is recommended",
+                    "min": 1,
+                    "max": 4,
+                    "xs": 6,
+                    "sm": 4,
+                    "md": 3
+                },
+                "testBtn": {
+                    "type": "sendTo",
+                    "label": "Test connection",
+                    "command": "testConnection",
+                    "newLine": true,
+                    "jsonData": "{\"host\":\"${data.host}\",\"protocol\":\"${data.protocol}\",\"port\":${data.port},\"username\":\"${data.username}\",\"password\":\"${data.password}\",\"verifyTls\":${data.verifyTls},\"timeoutMs\":${data.timeoutMs}}",
+                    "useNative": false,
+                    "variant": "outlined",
+                    "xs": 12,
+                    "sm": 4
+                }
+            }
+        },
+        "tabDisc": {
+            "type": "panel",
+            "label": "Discovery",
+            "items": {
+                "excludedNodes": {
+                    "type": "text",
+                    "label": "Excluded module node IDs",
+                    "help": "Comma separated, e.g. 17,18. Excluded modules are not read.",
+                    "xs": 12,
+                    "sm": 8
+                },
+                "cacheMaxAgeHours": {
+                    "type": "number",
+                    "label": "Discovery cache lifetime (hours)",
+                    "min": 1,
+                    "max": 2160,
+                    "newLine": true,
+                    "xs": 6,
+                    "sm": 4
+                },
+                "rescanBtn": {
+                    "type": "sendTo",
+                    "label": "Rescan now",
+                    "command": "rescan",
+                    "newLine": true,
+                    "variant": "outlined",
+                    "xs": 12,
+                    "sm": 4
+                },
+                "inventoryBtn": {
+                    "type": "sendTo",
+                    "label": "Show inventory",
+                    "command": "inventory",
+                    "variant": "outlined",
+                    "xs": 12,
+                    "sm": 4
+                }
+            }
+        },
+        "tabPoll": {
+            "type": "panel",
+            "label": "Polling",
+            "items": {
+                "enableFast": {
+                    "type": "checkbox",
+                    "label": "Enable fast category",
+                    "xs": 12,
+                    "sm": 4
+                },
+                "pollFastSec": {
+                    "type": "number",
+                    "label": "Fast interval (s)",
+                    "min": 10,
+                    "max": 3600,
+                    "xs": 12,
+                    "sm": 4
+                },
+                "fastGroups": {
+                    "type": "text",
+                    "label": "Groups polled fast",
+                    "help": "Group keys like n15.f0.l3 (see object native data). Empty = none.",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 8
+                },
+                "enableNormal": {
+                    "type": "checkbox",
+                    "label": "Enable normal category (measurements)",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 4
+                },
+                "pollNormalSec": {
+                    "type": "number",
+                    "label": "Normal interval (s)",
+                    "min": 30,
+                    "max": 7200,
+                    "xs": 12,
+                    "sm": 4
+                },
+                "enableSlow": {
+                    "type": "checkbox",
+                    "label": "Enable slow category (settings, LON)",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 4
+                },
+                "pollSlowSec": {
+                    "type": "number",
+                    "label": "Slow interval (s)",
+                    "min": 60,
+                    "max": 86400,
+                    "xs": 12,
+                    "sm": 4
+                },
+                "pollLon": {
+                    "type": "checkbox",
+                    "label": "Read LON network variables (experimental, slow)",
+                    "help": "One request per variable - can take 30 s or more per cycle",
+                    "newLine": true,
+                    "xs": 12
+                }
+            }
+        },
+        "tabData": {
+            "type": "panel",
+            "label": "Data",
+            "items": {
+                "exposeRaw": {
+                    "type": "checkbox",
+                    "label": "Also create raw string states (raw.*)",
+                    "help": "Unconverted controller strings, read-only",
+                    "xs": 12
+                }
+            }
+        },
+        "tabCtrl": {
+            "type": "panel",
+            "label": "Control",
+            "items": {
+                "warn": {
+                    "type": "staticText",
+                    "text": "Read-only is the default. Never enable writes for combustion, safety or service parameters.",
+                    "newLine": true,
+                    "xs": 12
+                },
+                "writesEnabled": {
+                    "type": "checkbox",
+                    "label": "Allow writes (only to the allow-list below)",
+                    "newLine": true,
+                    "xs": 12
+                },
+                "writeAllowlist": {
+                    "type": "text",
+                    "label": "Write allow-list (OIDs)",
+                    "help": "One OID per line, e.g. /1/15/0/3/50/0. Must also be marked writable by the controller.",
+                    "disabled": "!data.writesEnabled",
+                    "newLine": true,
+                    "minRows": 3,
+                    "xs": 12,
+                    "sm": 8,
+                    "maxRows": 8
+                },
+                "verifyWrites": {
+                    "type": "checkbox",
+                    "label": "Verify by reading back after write",
+                    "help": "Strongly recommended",
+                    "disabled": "!data.writesEnabled",
+                    "newLine": true,
+                    "xs": 12
+                }
+            }
+        },
+        "tabDiag": {
+            "type": "panel",
+            "label": "Diagnostics",
+            "items": {
+                "exportBtn": {
+                    "type": "sendTo",
+                    "label": "Export anonymised diagnostics",
+                    "command": "exportDiagnostics",
+                    "variant": "outlined",
+                    "xs": 12,
+                    "sm": 6
+                }
+            }
+        }
+    },
+    "i18n": true
+}

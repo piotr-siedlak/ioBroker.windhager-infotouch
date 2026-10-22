@@ -1,0 +1,9 @@
+.github/
+test/
+src/
+docs/
+*.md
+!README.md
+tsconfig*.json
+eslint.config.mjs
+.prettierrc.js

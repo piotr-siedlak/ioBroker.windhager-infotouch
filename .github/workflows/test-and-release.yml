@@ -1,0 +1,48 @@
+name: Test
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [20.x, 22.x, 24.x]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - run: npm ci
+            - run: npm run typecheck
+            - run: npm run lint
+            - run: npm test
+            - run: npm run build
+            - run: npm run test:package
+
+    integration:
+        needs: check
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22.x
+            - run: npm ci
+            - run: npm run build
+            - run: npm run test:integration
+
+    audit:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22.x
+            - run: npm ci
+            # Informational: known advisory in node-forge via @iobroker/adapter-core (transitive, see SECURITY.md).
+      - run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true

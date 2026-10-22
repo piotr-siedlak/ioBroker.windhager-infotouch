@@ -1,0 +1,61 @@
+{
+    "name": "iobroker.windhager",
+    "version": "0.1.0",
+    "description": "Local-first, read-only-by-default ioBroker adapter for Windhager InfoWIN Touch / MES INFINITY heating controllers",
+    "author": {
+        "name": "piotr-siedlak",
+        "email": "siedlak.piotr@gmail.com"
+    },
+    "homepage": "https://github.com/piotr-siedlak/ioBroker.windhager",
+    "license": "MIT",
+    "keywords": [
+        "ioBroker",
+        "windhager",
+        "infowin",
+        "heating",
+        "boiler"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager.git"
+    },
+    "engines": {
+        "node": ">=20"
+    },
+    "main": "build/main.js",
+    "files": [
+        "admin/",
+        "build/",
+        "io-package.json",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json",
+        "watch": "tsc -p tsconfig.build.json --watch",
+        "typecheck": "tsc -p tsconfig.json --noEmit",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "test": "node --import tsx --test \"test/**/*.test.ts\"",
+        "test:package": "mocha test/package.js --exit",
+        "check": "npm run typecheck && npm run lint && npm test && npm run test:package",
+        "audit:deps": "npm audit --omit=dev",
+        "test:integration": "mocha test/integration.js --exit"
+    },
+    "dependencies": {
+        "@iobroker/adapter-core": "^3.4.3"
+    },
+    "devDependencies": {
+        "@iobroker/eslint-config": "^2.3.4",
+        "@iobroker/testing": "^6.3.1",
+        "@iobroker/types": "^7.2.5",
+        "@tsconfig/node22": "^22.0.6",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^22.20.5",
+        "chai": "^4.5.0",
+        "eslint": "^9.39.5",
+        "mocha": "^12.0.3",
+        "prettier": "^3.9.10",
+        "tsx": "^4.23.15",
+        "typescript": "~5.9.3"
+    }
+}
