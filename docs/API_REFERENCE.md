@@ -12,6 +12,9 @@ REST services is `/api/1.0`; all calls use HTTP Digest authentication.
 - _never_: mutating operations, or reads with side effects / security relevance (users, VPN, settings, LON management,
   scans, hardware tests, firmware). The adapter has no code path to them.
 
+In addition to these REST services the adapter reads the static text files `/res/xml/{EbenenTexte,VarIdentTexte,AufzaehlTexte}_<lang>.xml`
+(GET only; not part of the Swagger documents).
+
 Observed on this firmware: `/fehlerlog` and `/heartbeat` answer 503; `/lookup/units/{cat}` answers 404 for categories 0-3;
 the lookup tree returns complete groups without paging; `/datapoints` returns the controller cache (a superset of the
 menu tree). OIDs are `/<subnet>/<node>/<function>/<group>/<member>/<instance>`.

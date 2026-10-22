@@ -117,7 +117,7 @@ export class StateRegistry {
                 });
                 for (const group of fn.lookups) {
                     for (const dp of group.datapoints) {
-                        await this.ensureDatapoint(dp);
+                        await this.ensureDatapoint(dp, group.key);
                         seen.add(dp.key);
                         datapoints++;
                     }
@@ -135,7 +135,7 @@ export class StateRegistry {
         return { datapoints, stale, revived };
     }
 
-    private async ensureDatapoint(dp: Datapoint): Promise<void> {
+    private async ensureDatapoint(dp: Datapoint, groupKey: string): Promise<void> {
         const writable = this.isExposedWritable(dp);
         const shape = shapeFor(dp, writable);
         const id = StateRegistry.stateId(dp);
@@ -157,6 +157,8 @@ export class StateRegistry {
                 key: dp.key,
                 oid: dp.oid,
                 code: displayCode(dp),
+                /** Poll group key: use it in "Groups polled fast". */
+                group: groupKey,
                 levelId: dp.levelId,
                 nativeName: dp.name,
                 typeId: dp.typeId,

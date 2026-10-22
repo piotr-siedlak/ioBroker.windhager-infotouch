@@ -5,6 +5,7 @@ exports.isWritableByController = isWritableByController;
 exports.categorize = categorize;
 exports.isCacheValid = isCacheValid;
 exports.summarize = summarize;
+const SystemScanner_1 = require("./SystemScanner");
 const Datapoint_1 = require("../models/Datapoint");
 function indexCatalog(catalog) {
     const index = { datapoints: new Map(), byOid: new Map(), groups: new Map() };
@@ -32,7 +33,8 @@ function isWritableByController(dp) {
 /**
  * Heuristic poll category for a lookup group. Groups made only of write-protected points are measurements and
  * are polled at the normal rate; groups containing writable parameters are mostly settings and change rarely.
- * Users can override this with the fast-group list. LON groups are always slow.
+ * The per-datapoint group of cache-only main-screen values is normal. Users can promote any group to fast with
+ * the fast-group list. LON-only groups are slow (decided by the caller).
  *
  * @param group Lookup group
  * @param fastGroups Group keys the user wants polled fast
@@ -40,6 +42,11 @@ function isWritableByController(dp) {
 function categorize(group, fastGroups) {
     if (fastGroups.has(group.key)) {
         return 'fast';
+    }
+    // Values only the controller cache knows are the main-screen values (actual room/flow temperature, operation
+    // mode): measured, so never as slow as a settings group even though the group also holds a writable point.
+    if (group.lookupId === SystemScanner_1.DIRECT_GROUP_ID) {
+        return 'normal';
     }
     if (group.datapoints.length === 0) {
         return 'slow';

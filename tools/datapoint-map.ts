@@ -52,7 +52,7 @@ void (async () => {
                               ? `${dp.value} = ${shape.states[dp.value] ?? '?'}`
                               : (dp.value ?? '-');
                     lines.push(
-                        `| \`${StateRegistry.stateId(dp)}\` | ${dp.label ?? displayCode(dp)} | ${value} | ${shape.unit ?? ''} | ${shape.type} | ${isWritableByController(dp) ? 'RW' : ''} |`,
+                        `| \`${StateRegistry.stateId(dp)}\` | ${dp.label ?? displayCode(dp)} | ${value} | ${shape.unit ?? ''} | ${shape.type} | ${isWritableByController(dp) ? 'RW' : ''} | \`${g.key}\` |`,
                     );
                 }
             }

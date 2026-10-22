@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { InfoWinRestApi } from '../src/api/InfoWinRestApi';
 import { loadTextTables } from '../src/api/ResourceTexts';
-import { indexCatalog, summarize } from '../src/discovery/CapabilityRegistry';
+import { categorize, indexCatalog, summarize } from '../src/discovery/CapabilityRegistry';
 import { scanSystem } from '../src/discovery/SystemScanner';
 import { applyLabels } from '../src/mappings/Naming';
 import { shapeFor } from '../src/mappings/StateRoles';
@@ -167,6 +167,19 @@ describe('real controller capture (MB6621 0.10.4)', () => {
         assert.equal(port.states.get('modules.node_15.fn_0.04-093'), 'E1');
         assert.equal(obj('modules.node_15.fn_0.03-061').common!.role, 'json');
         assert.match(String(port.states.get('modules.node_15.fn_0.03-061')), /"switchPoints"/);
+    });
+
+    it('exposes the poll group key on every datapoint so it can be used in the fast-group setting', () => {
+        assert.equal(obj('modules.node_15.fn_0.03-051').native.group, 'n15.f0.l101');
+        assert.equal(obj('modules.node_15.fn_0.00-001').native.group, 'n15.f0.direct');
+    });
+
+    it('polls measurement groups and main-screen values at the normal rate, settings slowly', () => {
+        const groups = indexCatalog(catalog).groups;
+        assert.equal(categorize(groups.get('n15.f0.direct')!, new Set()), 'normal');
+        assert.equal(categorize(groups.get('n15.f0.l117')!, new Set()), 'normal', 'boiler temperature');
+        assert.equal(categorize(groups.get('n15.f0.l101')!, new Set()), 'slow', 'room set points are settings');
+        assert.equal(categorize(groups.get('n15.f0.l101')!, new Set(['n15.f0.l101'])), 'fast', 'user override');
     });
 
     it('is read-only by default and only ever issued GET requests', () => {

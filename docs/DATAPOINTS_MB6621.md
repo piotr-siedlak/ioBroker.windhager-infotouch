@@ -9,86 +9,86 @@ unless you enable writes and allow-list the OID).
 
 | State id (`windhager-infotouch.0.` + ...) | Name                                                              | Value        | Unit | Type   | RW  |
 | ----------------------------------------- | ----------------------------------------------------------------- | ------------ | ---- | ------ | --- |
-| `modules.node_14.fn_0.07-012`             | Pump control: Speed regulation                                    | 1 = 0 to 10V |      | number | RW  |
-| `modules.node_14.fn_0.11-008`             | Pump control: Assigned to boiler                                  | 0            |      | number |     |
-| `modules.node_14.fn_0.00-095`             | External heating demand: Analogue set point                       | 0.0          | °C   | number |     |
-| `modules.node_14.fn_0.09-057`             | External heating demand: Set temperature ext. heating requirement | 60.0         | °C   | number | RW  |
-| `modules.node_14.fn_0.20-023`             | External heating demand: Digital set point DHW                    | 75.0         | °C   | number | RW  |
-| `modules.node_14.fn_0.29-001`             | Module functions: Pump control                                    | 0            |      | number | RW  |
-| `modules.node_14.fn_0.11-076`             | Module functions: Cascade function                                | 0            |      | number | RW  |
-| `modules.node_14.fn_0.29-002`             | Module functions: External heating demand                         | 1            |      | number | RW  |
-| `modules.node_14.fn_0.29-000`             | Module functions: Collective alarm                                | 0            |      | number | RW  |
-| `modules.node_14.fn_0.22-031`             | Actuator test: Relay                                              | 0            |      | number |     |
-| `modules.node_14.fn_0.22-032`             | Actuator test: Speed                                              | 0            | %    | number |     |
-| `modules.node_14.fn_0.04-005`             | Function (04-005)                                                 | (object)     |      | string | RW  |
-| `modules.node_14.fn_0.04-093`             | Hardware Version (04-093)                                         | (object)     |      | string |     |
-| `modules.node_14.fn_0.04-092`             | Software version firing automate (04-092)                         | (object)     |      | string |     |
+| `modules.node_14.fn_0.07-012`             | Pump control: Speed regulation                                    | 1 = 0 to 10V |      | number | RW  | `n14.f0.l98`    |
+| `modules.node_14.fn_0.11-008`             | Pump control: Assigned to boiler                                  | 0            |      | number |     | `n14.f0.l98`    |
+| `modules.node_14.fn_0.00-095`             | External heating demand: Analogue set point                       | 0.0          | °C   | number |     | `n14.f0.l99`    |
+| `modules.node_14.fn_0.09-057`             | External heating demand: Set temperature ext. heating requirement | 60.0         | °C   | number | RW  | `n14.f0.l99`    |
+| `modules.node_14.fn_0.20-023`             | External heating demand: Digital set point DHW                    | 75.0         | °C   | number | RW  | `n14.f0.l99`    |
+| `modules.node_14.fn_0.29-001`             | Module functions: Pump control                                    | 0            |      | number | RW  | `n14.f0.l101`   |
+| `modules.node_14.fn_0.11-076`             | Module functions: Cascade function                                | 0            |      | number | RW  | `n14.f0.l101`   |
+| `modules.node_14.fn_0.29-002`             | Module functions: External heating demand                         | 1            |      | number | RW  | `n14.f0.l101`   |
+| `modules.node_14.fn_0.29-000`             | Module functions: Collective alarm                                | 0            |      | number | RW  | `n14.f0.l101`   |
+| `modules.node_14.fn_0.22-031`             | Actuator test: Relay                                              | 0            |      | number |     | `n14.f0.l102`   |
+| `modules.node_14.fn_0.22-032`             | Actuator test: Speed                                              | 0            | %    | number |     | `n14.f0.l102`   |
+| `modules.node_14.fn_0.04-005`             | Function (04-005)                                                 | (object)     |      | string | RW  | `n14.f0.direct` |
+| `modules.node_14.fn_0.04-093`             | Hardware Version (04-093)                                         | (object)     |      | string |     | `n14.f0.direct` |
+| `modules.node_14.fn_0.04-092`             | Software version firing automate (04-092)                         | (object)     |      | string |     | `n14.f0.direct` |
 
 ## Node 15 `UMUMLZ` - function 0 `UMLZ (1)` (type 14)
 
 | State id (`windhager-infotouch.0.` + ...) | Name                                                 | Value        | Unit | Type   | RW  |
 | ----------------------------------------- | ---------------------------------------------------- | ------------ | ---- | ------ | --- |
-| `modules.node_15.fn_0.03-050`             | Select mode                                          | 0 = Stand-by |      | number | RW  |
-| `modules.node_15.fn_0.03-058`             | Optimisation: Correction                             | 0.0          | K    | number | RW  |
-| `modules.node_15.fn_0.02-016`             | DHW clearance: Enable                                | 0 = No       |      | number | RW  |
-| `modules.node_15.fn_0.02-010`             | Eco / Party: Duration                                | 0            | min  | number | RW  |
-| `modules.node_15.fn_0.03-004`             | Eco / Party: Temperature                             | 20.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.03-078`             | Holiday program: until Date                          | 22.10.2026   |      | string | RW  |
-| `modules.node_15.fn_0.03-051`             | Room temp. set points: Heating mode                  | 20.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.03-053`             | Room temp. set points: Setback mode                  | 14.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.02-072`             | Time / Date: Time                                    | 14:54        |      | string | RW  |
-| `modules.node_15.fn_0.02-070`             | Time / Date: Date                                    | 22.10.2026   |      | string | RW  |
-| `modules.node_15.fn_0.07-076`             | Module functions: Heating circuit                    | 0 = inactive |      | number | RW  |
-| `modules.node_15.fn_0.05-076`             | Module functions: DHW circuit                        | 0 = inactive |      | number | RW  |
-| `modules.node_15.fn_0.03-013`             | Base temperatures: Flow                              | 40.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.03-029`             | Base temperatures: Return                            | 30.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.03-012`             | Base temperatures: Climate                           | -16.0        | °C   | number | RW  |
-| `modules.node_15.fn_0.03-001`             | Base temperatures: Origin                            | 25.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.03-007`             | Influence of room temp.: Compensation                | 0.0          | K    | number | RW  |
-| `modules.node_15.fn_0.03-030`             | Influence of room temp.: PI control                  | 0.0          | min  | number | RW  |
-| `modules.node_15.fn_0.07-008`             | Heating limits: Max. flow temp.                      | 55.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.07-002`             | Heating limits: Min. flow temp.                      | 20.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.03-021`             | Heating limits: Temp. out heat mode                  | 20.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.03-002`             | Heating limits: T out setback mode                   | 5.0          | °C   | number | RW  |
-| `modules.node_15.fn_0.05-008`             | DHW load: Max. loading time                          | 120          | min  | number | RW  |
-| `modules.node_15.fn_0.07-001`             | Increase boiler temp. at: Heating circuit            | 0.0          | K    | number | RW  |
-| `modules.node_15.fn_0.03-006`             | Start-up optimization: Prestart                      | 0            | min  | number | RW  |
-| `modules.node_15.fn_0.04-013`             | LON system data: Temp. Outside                       | 0 = send     |      | number | RW  |
-| `modules.node_15.fn_0.04-012`             | LON system data: System time                         | 0 = send     |      | number | RW  |
-| `modules.node_15.fn_0.04-014`             | LON system data: Select mode                         | 0 = send     |      | number | RW  |
-| `modules.node_15.fn_0.04-060`             | Screed drying functions: Program                     | 0 = cancel   |      | number | RW  |
-| `modules.node_15.fn_0.04-065`             | Screed drying functions: T heat up phase             | 5.0          | K    | number | RW  |
-| `modules.node_15.fn_0.04-066`             | Screed drying functions: T cool down phase           | -5.0         | K    | number | RW  |
-| `modules.node_15.fn_0.04-063`             | Screed drying functions: Screed max flow temp.       | 45.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.04-067`             | Screed drying functions: Days of Temp. change        | 1.0          | d    | number | RW  |
-| `modules.node_15.fn_0.04-064`             | Screed drying functions: Days max flow temp.         | 16.0         | d    | number | RW  |
-| `modules.node_15.fn_0.04-005`             | Module information: Function                         | (object)     |      | string | RW  |
-| `modules.node_15.fn_0.04-092`             | Module information: Software version firing automate | (object)     |      | string |     |
-| `modules.node_15.fn_0.20-127`             | Module information (20-127)                          | (object)     |      | string |     |
-| `modules.node_15.fn_0.04-093`             | Module information: Hardware Version                 | (object)     |      | string |     |
-| `modules.node_15.fn_0.01-001`             | Room temperature: Set point                          | 0.0          | °C   | number |     |
-| `modules.node_15.fn_0.00-000`             | Outside temperature (00-000)                         | 0.0          | °C   | number |     |
-| `modules.node_15.fn_0.01-002`             | Flow temperature: Set point                          | 0.0          | °C   | number |     |
-| `modules.node_15.fn_0.00-007`             | Boiler temperature: Boiler temp. actual value        | 25.5         | °C   | number |     |
-| `modules.node_15.fn_0.01-007`             | Boiler temperature: Set temperature                  | 0.0          | °C   | number |     |
-| `modules.node_15.fn_0.03-000`             | Frost protection threshold: Room temperature         | 5.0          | °C   | number | RW  |
-| `modules.node_15.fn_0.03-023`             | Frost protection threshold: Outside temperature      | 2.0          | °C   | number | RW  |
-| `modules.node_15.fn_0.07-045`             | Frost protection threshold: Flow temperature         | 10.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.05-058`             | Frost protection threshold: DHW cylinder             | 5.0          | °C   | number | RW  |
-| `modules.node_15.fn_0.07-013`             | Heating circuit: Mixer speed                         | 2.5          | min  | number | RW  |
-| `modules.node_15.fn_0.07-003`             | Heating circuit: Pump Over Run                       | 10.0         | min  | number | RW  |
-| `modules.node_15.fn_0.05-000`             | DHW load: Hysteresis                                 | 5.0          | °C   | number | RW  |
-| `modules.node_15.fn_0.05-001`             | DHW load: Incr. boiler temp. at                      | 20.0         | °C   | number | RW  |
-| `modules.node_15.fn_0.05-003`             | DHW load: Pump Over Run 1                            | 5.0          | min  | number | RW  |
-| `modules.node_15.fn_0.05-080`             | DHW load: Pump Over Run 2                            | 20.0         | min  | number | RW  |
-| `modules.node_15.fn_0.01-020`             | Circuit pump, heating (01-020)                       | 0            |      | number |     |
-| `modules.node_15.fn_0.01-021`             | Mixing valve heating circuit (01-021)                | 0            | %    | number |     |
-| `modules.node_15.fn_0.01-066`             | Charging pump DHW (01-066)                           | 0            |      | number |     |
-| `modules.node_15.fn_0.05-006`             | Circulation pump active (05-006)                     | 0            |      | number | RW  |
-| `modules.node_15.fn_0.00-002`             | Actual (00-002)                                      | -            | °C   | number |     |
-| `modules.node_15.fn_0.02-009`             | Operation mode (02-009)                              | 0 = Stand-by |      | number |     |
-| `modules.node_15.fn_0.00-001`             | Actual (00-001)                                      | -            | °C   | number | RW  |
-| `modules.node_15.fn_0.03-063`             | Time program 3 (03-063)                              | (object)     |      | string | RW  |
-| `modules.node_15.fn_0.03-062`             | Time program 2 (03-062)                              | (object)     |      | string | RW  |
-| `modules.node_15.fn_0.03-061`             | Time program 1 (03-061)                              | (object)     |      | string | RW  |
-| `modules.node_15.fn_0.02-002`             | 02-002                                               | 0            |      | number |     |
+| `modules.node_15.fn_0.03-050`             | Select mode                                          | 0 = Stand-by |      | number | RW  | `n15.f0.l96`    |
+| `modules.node_15.fn_0.03-058`             | Optimisation: Correction                             | 0.0          | K    | number | RW  | `n15.f0.l97`    |
+| `modules.node_15.fn_0.02-016`             | DHW clearance: Enable                                | 0 = No       |      | number | RW  | `n15.f0.l98`    |
+| `modules.node_15.fn_0.02-010`             | Eco / Party: Duration                                | 0            | min  | number | RW  | `n15.f0.l99`    |
+| `modules.node_15.fn_0.03-004`             | Eco / Party: Temperature                             | 20.0         | °C   | number | RW  | `n15.f0.l99`    |
+| `modules.node_15.fn_0.03-078`             | Holiday program: until Date                          | 22.10.2026   |      | string | RW  | `n15.f0.l100`   |
+| `modules.node_15.fn_0.03-051`             | Room temp. set points: Heating mode                  | 20.0         | °C   | number | RW  | `n15.f0.l101`   |
+| `modules.node_15.fn_0.03-053`             | Room temp. set points: Setback mode                  | 14.0         | °C   | number | RW  | `n15.f0.l101`   |
+| `modules.node_15.fn_0.02-072`             | Time / Date: Time                                    | 14:54        |      | string | RW  | `n15.f0.l102`   |
+| `modules.node_15.fn_0.02-070`             | Time / Date: Date                                    | 22.10.2026   |      | string | RW  | `n15.f0.l102`   |
+| `modules.node_15.fn_0.07-076`             | Module functions: Heating circuit                    | 0 = inactive |      | number | RW  | `n15.f0.l103`   |
+| `modules.node_15.fn_0.05-076`             | Module functions: DHW circuit                        | 0 = inactive |      | number | RW  | `n15.f0.l103`   |
+| `modules.node_15.fn_0.03-013`             | Base temperatures: Flow                              | 40.0         | °C   | number | RW  | `n15.f0.l104`   |
+| `modules.node_15.fn_0.03-029`             | Base temperatures: Return                            | 30.0         | °C   | number | RW  | `n15.f0.l104`   |
+| `modules.node_15.fn_0.03-012`             | Base temperatures: Climate                           | -16.0        | °C   | number | RW  | `n15.f0.l104`   |
+| `modules.node_15.fn_0.03-001`             | Base temperatures: Origin                            | 25.0         | °C   | number | RW  | `n15.f0.l104`   |
+| `modules.node_15.fn_0.03-007`             | Influence of room temp.: Compensation                | 0.0          | K    | number | RW  | `n15.f0.l105`   |
+| `modules.node_15.fn_0.03-030`             | Influence of room temp.: PI control                  | 0.0          | min  | number | RW  | `n15.f0.l105`   |
+| `modules.node_15.fn_0.07-008`             | Heating limits: Max. flow temp.                      | 55.0         | °C   | number | RW  | `n15.f0.l106`   |
+| `modules.node_15.fn_0.07-002`             | Heating limits: Min. flow temp.                      | 20.0         | °C   | number | RW  | `n15.f0.l106`   |
+| `modules.node_15.fn_0.03-021`             | Heating limits: Temp. out heat mode                  | 20.0         | °C   | number | RW  | `n15.f0.l106`   |
+| `modules.node_15.fn_0.03-002`             | Heating limits: T out setback mode                   | 5.0          | °C   | number | RW  | `n15.f0.l106`   |
+| `modules.node_15.fn_0.05-008`             | DHW load: Max. loading time                          | 120          | min  | number | RW  | `n15.f0.l107`   |
+| `modules.node_15.fn_0.07-001`             | Increase boiler temp. at: Heating circuit            | 0.0          | K    | number | RW  | `n15.f0.l108`   |
+| `modules.node_15.fn_0.03-006`             | Start-up optimization: Prestart                      | 0            | min  | number | RW  | `n15.f0.l109`   |
+| `modules.node_15.fn_0.04-013`             | LON system data: Temp. Outside                       | 0 = send     |      | number | RW  | `n15.f0.l110`   |
+| `modules.node_15.fn_0.04-012`             | LON system data: System time                         | 0 = send     |      | number | RW  | `n15.f0.l110`   |
+| `modules.node_15.fn_0.04-014`             | LON system data: Select mode                         | 0 = send     |      | number | RW  | `n15.f0.l110`   |
+| `modules.node_15.fn_0.04-060`             | Screed drying functions: Program                     | 0 = cancel   |      | number | RW  | `n15.f0.l111`   |
+| `modules.node_15.fn_0.04-065`             | Screed drying functions: T heat up phase             | 5.0          | K    | number | RW  | `n15.f0.l111`   |
+| `modules.node_15.fn_0.04-066`             | Screed drying functions: T cool down phase           | -5.0         | K    | number | RW  | `n15.f0.l111`   |
+| `modules.node_15.fn_0.04-063`             | Screed drying functions: Screed max flow temp.       | 45.0         | °C   | number | RW  | `n15.f0.l111`   |
+| `modules.node_15.fn_0.04-067`             | Screed drying functions: Days of Temp. change        | 1.0          | d    | number | RW  | `n15.f0.l111`   |
+| `modules.node_15.fn_0.04-064`             | Screed drying functions: Days max flow temp.         | 16.0         | d    | number | RW  | `n15.f0.l111`   |
+| `modules.node_15.fn_0.04-005`             | Module information: Function                         | (object)     |      | string | RW  | `n15.f0.l112`   |
+| `modules.node_15.fn_0.04-092`             | Module information: Software version firing automate | (object)     |      | string |     | `n15.f0.l112`   |
+| `modules.node_15.fn_0.20-127`             | Module information (20-127)                          | (object)     |      | string |     | `n15.f0.l112`   |
+| `modules.node_15.fn_0.04-093`             | Module information: Hardware Version                 | (object)     |      | string |     | `n15.f0.l112`   |
+| `modules.node_15.fn_0.01-001`             | Room temperature: Set point                          | 0.0          | °C   | number |     | `n15.f0.l113`   |
+| `modules.node_15.fn_0.00-000`             | Outside temperature (00-000)                         | 0.0          | °C   | number |     | `n15.f0.l115`   |
+| `modules.node_15.fn_0.01-002`             | Flow temperature: Set point                          | 0.0          | °C   | number |     | `n15.f0.l116`   |
+| `modules.node_15.fn_0.00-007`             | Boiler temperature: Boiler temp. actual value        | 25.5         | °C   | number |     | `n15.f0.l117`   |
+| `modules.node_15.fn_0.01-007`             | Boiler temperature: Set temperature                  | 0.0          | °C   | number |     | `n15.f0.l117`   |
+| `modules.node_15.fn_0.03-000`             | Frost protection threshold: Room temperature         | 5.0          | °C   | number | RW  | `n15.f0.l119`   |
+| `modules.node_15.fn_0.03-023`             | Frost protection threshold: Outside temperature      | 2.0          | °C   | number | RW  | `n15.f0.l119`   |
+| `modules.node_15.fn_0.07-045`             | Frost protection threshold: Flow temperature         | 10.0         | °C   | number | RW  | `n15.f0.l119`   |
+| `modules.node_15.fn_0.05-058`             | Frost protection threshold: DHW cylinder             | 5.0          | °C   | number | RW  | `n15.f0.l119`   |
+| `modules.node_15.fn_0.07-013`             | Heating circuit: Mixer speed                         | 2.5          | min  | number | RW  | `n15.f0.l120`   |
+| `modules.node_15.fn_0.07-003`             | Heating circuit: Pump Over Run                       | 10.0         | min  | number | RW  | `n15.f0.l120`   |
+| `modules.node_15.fn_0.05-000`             | DHW load: Hysteresis                                 | 5.0          | °C   | number | RW  | `n15.f0.l121`   |
+| `modules.node_15.fn_0.05-001`             | DHW load: Incr. boiler temp. at                      | 20.0         | °C   | number | RW  | `n15.f0.l121`   |
+| `modules.node_15.fn_0.05-003`             | DHW load: Pump Over Run 1                            | 5.0          | min  | number | RW  | `n15.f0.l121`   |
+| `modules.node_15.fn_0.05-080`             | DHW load: Pump Over Run 2                            | 20.0         | min  | number | RW  | `n15.f0.l121`   |
+| `modules.node_15.fn_0.01-020`             | Circuit pump, heating (01-020)                       | 0            |      | number |     | `n15.f0.l122`   |
+| `modules.node_15.fn_0.01-021`             | Mixing valve heating circuit (01-021)                | 0            | %    | number |     | `n15.f0.l122`   |
+| `modules.node_15.fn_0.01-066`             | Charging pump DHW (01-066)                           | 0            |      | number |     | `n15.f0.l122`   |
+| `modules.node_15.fn_0.05-006`             | Circulation pump active (05-006)                     | 0            |      | number | RW  | `n15.f0.l126`   |
+| `modules.node_15.fn_0.00-002`             | Actual (00-002)                                      | -            | °C   | number |     | `n15.f0.direct` |
+| `modules.node_15.fn_0.02-009`             | Operation mode (02-009)                              | 0 = Stand-by |      | number |     | `n15.f0.direct` |
+| `modules.node_15.fn_0.00-001`             | Actual (00-001)                                      | -            | °C   | number | RW  | `n15.f0.direct` |
+| `modules.node_15.fn_0.03-063`             | Time program 3 (03-063)                              | (object)     |      | string | RW  | `n15.f0.direct` |
+| `modules.node_15.fn_0.03-062`             | Time program 2 (03-062)                              | (object)     |      | string | RW  | `n15.f0.direct` |
+| `modules.node_15.fn_0.03-061`             | Time program 1 (03-061)                              | (object)     |      | string | RW  | `n15.f0.direct` |
+| `modules.node_15.fn_0.02-002`             | 02-002                                               | 0            |      | number |     | `n15.f0.direct` |

@@ -17,7 +17,11 @@ Based on a read-only probe of a real InfoWIN Touch MB6621 (firmware 0.10.4) and 
 - Datapoints that only the controller cache knows (actual room/flow temperature, time programs, operation mode)
   are discovered and polled individually.
 - New docs: `docs/API_REFERENCE.md` (all 201 controller operations, classified), `docs/DATAPOINTS_MB6621.md`.
-- Tests against a sanitised real-device capture.
+- Tests against a sanitised real-device capture (`test/fixtures/mb6621-real.json`).
+- Each datapoint object carries `native.group`, the poll group key for the "Groups polled fast" setting.
+- The per-datapoint group of cache-only main-screen values is polled as "normal" (not "slow") by default.
+- All documentation rewritten against the real controller: verification status, state layout, configuration,
+  installation and upgrade notes, troubleshooting, testing and capture procedure.
 
 ## 0.2.0 (unreleased)
 
