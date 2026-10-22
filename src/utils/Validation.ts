@@ -22,6 +22,8 @@ export interface AdapterConfig {
     writesEnabled: boolean;
     writeAllowlist: string;
     verifyWrites: boolean;
+    /** Language of names taken from the controller (`''` = ioBroker system language). */
+    language: string;
 }
 
 export interface NormalizedConfig extends Omit<AdapterConfig, 'fastGroups' | 'excludedNodes' | 'writeAllowlist'> {
@@ -53,6 +55,7 @@ export const DEFAULT_CONFIG: AdapterConfig = {
     writesEnabled: false,
     writeAllowlist: '',
     verifyWrites: true,
+    language: '',
 };
 
 const clamp = (value: unknown, min: number, max: number, fallback: number): number => {
@@ -137,6 +140,7 @@ export function normalizeConfig(raw: Partial<AdapterConfig> | undefined): {
         writesEnabled: c.writesEnabled === true,
         writeAllowlist,
         verifyWrites: c.verifyWrites !== false,
+        language: typeof c.language === 'string' && /^[a-z]{2}$/.test(c.language) ? c.language : '',
     };
     return { config, problems };
 }

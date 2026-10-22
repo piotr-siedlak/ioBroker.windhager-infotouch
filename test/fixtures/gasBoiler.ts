@@ -87,6 +87,8 @@ export const gasBoilerFixture: Fixture = {
         ],
         '/1/15/0/3': [
             dp(OID.boilerTemp, 'Boiler temperature', {
+                groupNr: 0,
+                memberNr: 10,
                 value: '64.5',
                 unit: '°C',
                 minValue: '0',
@@ -94,6 +96,8 @@ export const gasBoilerFixture: Fixture = {
                 step: '0.1',
             }),
             dp(OID.boilerSetpoint, 'Boiler setpoint', {
+                groupNr: 0,
+                memberNr: 11,
                 value: '70',
                 unit: '°C',
                 minValue: '40',
@@ -103,8 +107,16 @@ export const gasBoilerFixture: Fixture = {
             }),
         ],
         '/1/16/0/3': [
-            dp(OID.hc1Mode, 'Operating mode', { value: '1', enum: '[0,1,2,3]', writeProt: false }),
+            dp(OID.hc1Mode, 'Operating mode', {
+                groupNr: 3,
+                memberNr: 20,
+                value: '1',
+                enum: '[0,1,2,3]',
+                writeProt: false,
+            }),
             dp(OID.hc1RoomSetpoint, 'Room setpoint', {
+                groupNr: 3,
+                memberNr: 21,
                 value: '21',
                 unit: '°C',
                 minValue: '10',

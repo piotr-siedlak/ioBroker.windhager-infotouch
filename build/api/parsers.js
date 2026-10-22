@@ -123,6 +123,8 @@ function parseDatapoint(item) {
         enumValues: parseEnumField(item.enum),
         writeProtected: typeof writeProt === 'boolean' ? writeProt : null,
         timestamp: typeof item.timestamp === 'string' ? item.timestamp : null,
+        groupNr: asInt(item.groupNr),
+        memberNr: asInt(item.memberNr),
     };
 }
 function parseLonVariable(item, nodeId, fctId, lookupId) {

@@ -57,10 +57,21 @@ class HttpClient {
      * @param query Optional query parameters
      */
     async getJson(path, query) {
+        return this.getWithRetry(() => this.request('GET', path, query));
+    }
+    /**
+     * GET raw bytes (e.g. XML resources whose charset is declared inside the document).
+     *
+     * @param path Absolute request path
+     */
+    async getBytes(path) {
+        return this.getWithRetry(() => this.request('GET', path, undefined, undefined, true));
+    }
+    async getWithRetry(fn) {
         let attempt = 0;
         for (;;) {
             try {
-                return await this.limited(() => this.request('GET', path, query));
+                return await this.limited(fn);
             }
             catch (err) {
                 if (this.closed || attempt >= this.options.retries || !(0, errors_1.isRetryable)(err)) {
@@ -111,7 +122,7 @@ class HttpClient {
             .join('&');
         return `${path}?${qs}`;
     }
-    async request(method, path, query, body) {
+    async request(method, path, query, body, raw = false) {
         const started = Date.now();
         const uri = this.buildUri(path, query);
         try {
@@ -129,7 +140,7 @@ class HttpClient {
                 }
             }
             this.onMetric?.({ method, path, status: res.status, durationMs: Date.now() - started });
-            return this.parse(res.status, res.body);
+            return raw ? this.checkRaw(res.status, res.body) : this.parse(res.status, res.body.toString('utf8'));
         }
         catch (err) {
             this.onMetric?.({
@@ -140,6 +151,15 @@ class HttpClient {
             });
             throw err;
         }
+    }
+    checkRaw(status, body) {
+        if (status === 404) {
+            throw (0, errors_1.unsupportedError)('HTTP 404', 404);
+        }
+        if (status < 200 || status >= 300) {
+            throw (0, errors_1.httpError)(status);
+        }
+        return body;
     }
     parse(status, text) {
         if (status === 404) {
@@ -205,7 +225,7 @@ class HttpClient {
                 res.on('end', () => resolve({
                     status: res.statusCode ?? 0,
                     headers: res.headers,
-                    body: Buffer.concat(chunks).toString('utf8'),
+                    body: Buffer.concat(chunks),
                 }));
                 res.on('error', e => reject((0, errors_1.connectionError)(e.message)));
             });

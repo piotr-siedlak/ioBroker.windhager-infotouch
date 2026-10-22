@@ -91,10 +91,23 @@ export class HttpClient {
      * @param query Optional query parameters
      */
     public async getJson(path: string, query?: Query): Promise<unknown> {
+        return this.getWithRetry(() => this.request('GET', path, query));
+    }
+
+    /**
+     * GET raw bytes (e.g. XML resources whose charset is declared inside the document).
+     *
+     * @param path Absolute request path
+     */
+    public async getBytes(path: string): Promise<Buffer> {
+        return this.getWithRetry(() => this.request('GET', path, undefined, undefined, true) as Promise<Buffer>);
+    }
+
+    private async getWithRetry<T>(fn: () => Promise<T>): Promise<T> {
         let attempt = 0;
         for (;;) {
             try {
-                return await this.limited(() => this.request('GET', path, query));
+                return await this.limited(fn);
             } catch (err) {
                 if (this.closed || attempt >= this.options.retries || !isRetryable(err)) {
                     throw err;
@@ -147,7 +160,7 @@ export class HttpClient {
         return `${path}?${qs}`;
     }
 
-    private async request(method: string, path: string, query?: Query, body?: string): Promise<unknown> {
+    private async request(method: string, path: string, query?: Query, body?: string, raw = false): Promise<unknown> {
         const started = Date.now();
         const uri = this.buildUri(path, query);
         try {
@@ -165,7 +178,7 @@ export class HttpClient {
                 }
             }
             this.onMetric?.({ method, path, status: res.status, durationMs: Date.now() - started });
-            return this.parse(res.status, res.body);
+            return raw ? this.checkRaw(res.status, res.body) : this.parse(res.status, res.body.toString('utf8'));
         } catch (err) {
             this.onMetric?.({
                 method,
@@ -175,6 +188,16 @@ export class HttpClient {
             });
             throw err;
         }
+    }
+
+    private checkRaw(status: number, body: Buffer): Buffer {
+        if (status === 404) {
+            throw unsupportedError('HTTP 404', 404);
+        }
+        if (status < 200 || status >= 300) {
+            throw httpError(status);
+        }
+        return body;
     }
 
     private parse(status: number, text: string): unknown {
@@ -199,7 +222,7 @@ export class HttpClient {
         uri: string,
         body: string | undefined,
         allowAuth: boolean,
-    ): Promise<{ status: number; headers: http.IncomingHttpHeaders; body: string }> {
+    ): Promise<{ status: number; headers: http.IncomingHttpHeaders; body: Buffer }> {
         return new Promise((resolve, reject) => {
             const headers: Record<string, string | number> = { Accept: 'application/json' };
             if (body !== undefined) {
@@ -248,7 +271,7 @@ export class HttpClient {
                         resolve({
                             status: res.statusCode ?? 0,
                             headers: res.headers,
-                            body: Buffer.concat(chunks).toString('utf8'),
+                            body: Buffer.concat(chunks),
                         }),
                     );
                     res.on('error', e => reject(connectionError(e.message)));

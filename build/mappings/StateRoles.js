@@ -22,8 +22,8 @@ function shapeFor(dp, writable) {
         role: dp.enumValues ? (writable ? 'level' : 'value') : (0, Units_1.roleForUnit)(dp.unit),
     };
     if (dp.enumValues) {
-        // Native enum texts are not loaded yet; expose the raw codes so the dropdown at least stays valid.
-        shape.states = Object.fromEntries(dp.enumValues.map(v => [String(v), String(v)]));
+        // Controller text (AufzaehlTexte) when available, otherwise the raw code keeps the dropdown valid.
+        shape.states = Object.fromEntries(dp.enumValues.map(v => [String(v), dp.enumTexts?.[String(v)] ?? String(v)]));
     }
     else {
         if (hasRange) {

@@ -5,20 +5,20 @@ Levels: **implemented** (code exists) / **fixture-tested** (tests against our sy
 
 **No row below has been real-device-tested by this project.**
 
-| Area                                                          | Implemented                             | Fixture-tested | Real-device-tested | Notes                                               |
-| ------------------------------------------------------------- | --------------------------------------- | -------------- | ------------------ | --------------------------------------------------- |
-| Digest auth, timeouts, retries, concurrency bound             | yes                                     | yes            | no                 |                                                     |
-| Protocol detection                                            | yes                                     | yes            | no                 | one API family                                      |
-| Module / function / group / datapoint discovery with metadata | yes                                     | yes            | no                 |                                                     |
-| Groups with more than 10 entries (paging)                     | yes                                     | yes            | no                 | **experimental**: contract unverified (RESEARCH P7) |
-| Polling in fast / normal / slow categories                    | yes                                     | yes            | no                 | intervals are untuned defaults                      |
-| Offline detection, stale quality, reconnect                   | yes                                     | yes            | no                 |                                                     |
-| Discovery cache + invalidation                                | yes                                     | yes            | no                 |                                                     |
-| Single-datapoint write with read-back                         | yes (off by default)                    | yes            | no                 | **experimental**; allow-list only                   |
-| Time programs                                                 | read-only, verbatim JSON                | yes            | no                 | **experimental**; no interpretation, no write       |
-| LON variables                                                 | raw strings, read-only (off by default) | yes            | no                 | **experimental**                                    |
-| Native enum texts / labels from `/res/xml`                    | no                                      | -              | -                  | planned                                             |
-| Semantic mapping (boiler / heating circuit / buffer / DHW)    | **no**                                  | -              | -                  | needs real captures per appliance                   |
+| Area                                                          | Implemented                             | Fixture-tested | Real-device-tested | Notes                                                         |
+| ------------------------------------------------------------- | --------------------------------------- | -------------- | ------------------ | ------------------------------------------------------------- |
+| Digest auth, timeouts, retries, concurrency bound             | yes                                     | yes            | no                 |                                                               |
+| Protocol detection                                            | yes                                     | yes            | no                 | one API family                                                |
+| Module / function / group / datapoint discovery with metadata | yes                                     | yes            | no                 |                                                               |
+| Groups with more than 10 entries (paging)                     | yes                                     | yes            | no                 | **experimental**: contract unverified (RESEARCH P7)           |
+| Polling in fast / normal / slow categories                    | yes                                     | yes            | no                 | intervals are untuned defaults                                |
+| Offline detection, stale quality, reconnect                   | yes                                     | yes            | no                 |                                                               |
+| Discovery cache + invalidation                                | yes                                     | yes            | no                 |                                                               |
+| Single-datapoint write with read-back                         | yes (off by default)                    | yes            | no                 | **experimental**; allow-list only                             |
+| Time programs                                                 | read-only, verbatim JSON                | yes            | no                 | **experimental**; no interpretation, no write                 |
+| LON variables                                                 | raw strings, read-only (off by default) | yes            | no                 | **experimental**                                              |
+| Names and enum texts from `/res/xml` text tables              | yes                                     | yes            | no                 | function/module names stay generic until verified on hardware |
+| Semantic mapping (boiler / heating circuit / buffer / DHW)    | **no**                                  | -              | -                  | needs real captures per appliance                             |
 
 ## Appliance types
 

@@ -208,6 +208,65 @@
                     "label": "Also create raw string states (raw.*)",
                     "help": "Unconverted controller strings, read-only",
                     "xs": 12
+                },
+                "language": {
+                    "type": "select",
+                    "label": "Language of names",
+                    "help": "Names come from the controller's own text tables; falls back to English, then German",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 4,
+                    "options": [
+                        {
+                            "label": "ioBroker system language",
+                            "value": ""
+                        },
+                        {
+                            "label": "Deutsch",
+                            "value": "de"
+                        },
+                        {
+                            "label": "English",
+                            "value": "en"
+                        },
+                        {
+                            "label": "Polski",
+                            "value": "pl"
+                        },
+                        {
+                            "label": "Français",
+                            "value": "fr"
+                        },
+                        {
+                            "label": "Italiano",
+                            "value": "it"
+                        },
+                        {
+                            "label": "Nederlands",
+                            "value": "nl"
+                        },
+                        {
+                            "label": "Čeština",
+                            "value": "cs"
+                        },
+                        {
+                            "label": "Slovenčina",
+                            "value": "sk"
+                        },
+                        {
+                            "label": "Slovenščina",
+                            "value": "sl"
+                        },
+                        {
+                            "label": "Español",
+                            "value": "es"
+                        },
+                        {
+                            "label": "Magyar",
+                            "value": "hu"
+                        }
+                    ]
                 }
             }
         },

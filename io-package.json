@@ -1,8 +1,13 @@
 {
     "common": {
         "name": "windhager-infotouch",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "news": {
+            "0.2.0": {
+                "en": "Readable names for datapoints, menu groups and enum values from the controller text tables",
+                "pl": "Czytelne nazwy punktów danych, grup menu i wartości wyliczeń z tabel tekstów sterownika",
+                "de": "Lesbare Namen für Datenpunkte, Menügruppen und Aufzählungswerte aus den Texttabellen des Reglers"
+            },
             "0.1.2": {
                 "en": "Adapter renamed to windhager-infotouch to match the repository; installs from GitHub work",
                 "pl": "Adapter przemianowany na windhager-infotouch zgodnie z nazwą repozytorium; instalacja z GitHub działa",
@@ -89,7 +94,8 @@
         "cacheMaxAgeHours": 168,
         "writesEnabled": false,
         "writeAllowlist": "",
-        "verifyWrites": true
+        "verifyWrites": true,
+        "language": ""
     },
     "encryptedNative": ["password"],
     "protectedNative": ["password"],

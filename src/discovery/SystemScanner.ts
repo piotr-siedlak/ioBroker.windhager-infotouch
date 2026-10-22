@@ -15,6 +15,8 @@ export interface ScanOptions {
     excludedNodes: ReadonlySet<number>;
     /** Read LON variable lists too (structure only, no per-variable values). */
     includeLon: boolean;
+    /** Text language, only recorded in the cache fingerprint here. */
+    language?: string;
     log?: (message: string) => void;
 }
 

@@ -20,6 +20,8 @@
     "HTTPS": "HTTPS",
     "Host / IP address": "Host / adres IP",
     "IP address or host name of the InfoWIN Touch (no http://)": "Adres IP lub nazwa hosta InfoWIN Touch (bez http://)",
+    "Language of names": "Język nazw",
+    "Names come from the controller's own text tables; falls back to English, then German": "Nazwy pochodzą z tabel tekstów sterownika; w razie braku angielski, potem niemiecki",
     "Normal interval (s)": "Interwał normalny (s)",
     "One OID per line, e.g. /1/15/0/3/50/0. Must also be marked writable by the controller.": "Jeden OID w wierszu, np. /1/15/0/3/50/0. Sterownik musi też oznaczać go jako zapisywalny.",
     "One request per variable - can take 30 s or more per cycle": "Jedno zapytanie na zmienną – cykl może trwać 30 s lub dłużej",
@@ -43,5 +45,6 @@
     "Uses the saved password - save first if you changed it": "Używa zapisanego hasła – najpierw zapisz, jeśli je zmieniłeś",
     "Verify TLS certificate": "Weryfikuj certyfikat TLS",
     "Verify by reading back after write": "Weryfikuj odczytem zwrotnym po zapisie",
-    "Write allow-list (OIDs)": "Lista dozwolonych do zapisu (OID)"
+    "Write allow-list (OIDs)": "Lista dozwolonych do zapisu (OID)",
+    "ioBroker system language": "Język systemu ioBroker"
 }

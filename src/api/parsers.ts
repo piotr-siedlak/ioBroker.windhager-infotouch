@@ -131,6 +131,8 @@ export function parseDatapoint(item: unknown): Datapoint | null {
         enumValues: parseEnumField(item.enum),
         writeProtected: typeof writeProt === 'boolean' ? writeProt : null,
         timestamp: typeof item.timestamp === 'string' ? item.timestamp : null,
+        groupNr: asInt(item.groupNr),
+        memberNr: asInt(item.memberNr),
     };
 }
 

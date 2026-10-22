@@ -92,20 +92,20 @@ export class StateRegistry {
             const nodeId = `modules.node_${module.nodeId}`;
             await this.port.extendObject(nodeId, {
                 type: 'device',
-                common: { name: module.name },
+                common: { name: module.label ?? `Module ${module.nodeId}` },
                 native: { nodeId: module.nodeId, group: module.group, subnet: module.subnet },
             });
             for (const fn of module.functions) {
                 const fnId = `${nodeId}.fn_${fn.fctId}`;
                 await this.port.extendObject(fnId, {
                     type: 'channel',
-                    common: { name: fn.name || `Function ${fn.fctId}` },
+                    common: { name: fn.label ?? `Function ${fn.fctId} (type ${fn.fctType})` },
                     native: { fctId: fn.fctId, fctType: fn.fctType, locked: fn.locked },
                 });
                 for (const group of fn.lookups) {
                     await this.port.extendObject(`${fnId}.grp_${group.lookupId}`, {
                         type: 'channel',
-                        common: { name: `Group ${group.lookupId}` },
+                        common: { name: group.label ?? `Group ${group.lookupId}` },
                         native: { lookupId: group.lookupId, count: group.count },
                     });
                     for (const dp of group.datapoints) {
@@ -134,7 +134,8 @@ export class StateRegistry {
         await this.port.extendObject(id, {
             type: 'state',
             common: {
-                name: dp.name || `OID ${dp.oid}`,
+                name: dp.label ?? (dp.name || `OID ${dp.oid}`),
+                desc: `${dp.oid}${dp.groupNr !== null && dp.groupNr >= 0 ? ` (${dp.groupNr}-${dp.memberNr})` : ''}`,
                 type: shape.type,
                 role: shape.role,
                 read: true,
@@ -147,6 +148,9 @@ export class StateRegistry {
             native: {
                 key: dp.key,
                 oid: dp.oid,
+                groupNr: dp.groupNr,
+                memberNr: dp.memberNr,
+                nativeName: dp.name,
                 typeId: dp.typeId,
                 subtypeId: dp.subtypeId,
                 unitId: dp.unitId,

@@ -22,13 +22,14 @@ Example (synthetic): `modules.node_16.fn_0.grp_3.dp_21_0`
 
 | Object field               | Source                                                                                                                                                                                        |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `common.name`              | native label (may repeat), else `OID ...`                                                                                                                                                     |
+| `common.name`              | controller text table (VarIdentTexte by group/member) in the chosen language; else a meaningful API name; else `OID ...`                                                                      |
+| `common.desc`              | OID and group-member code, e.g. `/1/16/0/3/21/0 (3-21)`                                                                                                                                       |
 | `common.type`              | `number` for enums / unit / range / numeric value, else `string`                                                                                                                              |
 | `common.role`              | by unit: `°C` -> `value.temperature` (`level.temperature` if writable), `kW` -> `value.power`, `kWh` -> `value.energy`, `bar` -> `value.pressure`; enums -> `value` / `level`; text -> `text` |
 | `common.unit/min/max/step` | native unit and metadata, unchanged                                                                                                                                                           |
-| `common.states`            | enum **codes** (native texts not loaded yet)                                                                                                                                                  |
+| `common.states`            | enum code -> controller text (AufzaehlTexte); raw code when no text exists                                                                                                                    |
 | `common.write`             | true only if writes enabled AND allow-listed AND controller-writable                                                                                                                          |
-| `native`                   | `key`, `oid`, `typeId`, `subtypeId`, `unitId`, `writeProtected`, `stale`                                                                                                                      |
+| `native`                   | `key`, `oid`, `groupNr`, `memberNr`, `nativeName`, `typeId`, `subtypeId`, `unitId`, `writeProtected`, `stale`                                                                                 |
 
 Values are `ack: true`. Quality `q = 0` when fresh, `0x42` when the controller is offline (last value kept) or the
 datapoint disappeared after a rescan (`native.stale = true`; the value is set to `null`, history adapters keep past values). Placeholder values (`-`, empty) become `null`.

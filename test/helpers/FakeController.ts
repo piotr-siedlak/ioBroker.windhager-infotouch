@@ -35,6 +35,8 @@ export interface Fixture {
     paged?: Record<string, Record<number, Json>>;
     /** Objects by full OID for /api/1.0/object. */
     objects?: Record<string, Json | number>;
+    /** Static resources by path, e.g. `/res/xml/VarIdentTexte_en.xml`. */
+    resources?: Record<string, string | Buffer>;
 }
 
 const md5 = (s: string): string => createHash('md5').update(s).digest('hex');
@@ -189,6 +191,16 @@ export class FakeController {
     private route(req: http.IncomingMessage, res: http.ServerResponse, body?: string): void {
         const url = new URL(req.url ?? '/', 'http://x');
         const path = url.pathname;
+        if (req.method === 'GET' && path.startsWith('/res/')) {
+            const resource = this.fixture.resources?.[path];
+            if (resource === undefined) {
+                this.send(res, 404, '');
+            } else {
+                res.writeHead(200, { 'Content-Type': 'application/xml' });
+                res.end(resource);
+            }
+            return;
+        }
         if (req.method === 'GET' && path === '/api/1.0/info/deviceinfo') {
             this.send(res, 200, JSON.stringify(this.fixture.deviceinfo));
             return;

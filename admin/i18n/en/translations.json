@@ -20,6 +20,8 @@
     "HTTPS": "HTTPS",
     "Host / IP address": "Host / IP address",
     "IP address or host name of the InfoWIN Touch (no http://)": "IP address or host name of the InfoWIN Touch (no http://)",
+    "Language of names": "Language of names",
+    "Names come from the controller's own text tables; falls back to English, then German": "Names come from the controller's own text tables; falls back to English, then German",
     "Normal interval (s)": "Normal interval (s)",
     "One OID per line, e.g. /1/15/0/3/50/0. Must also be marked writable by the controller.": "One OID per line, e.g. /1/15/0/3/50/0. Must also be marked writable by the controller.",
     "One request per variable - can take 30 s or more per cycle": "One request per variable - can take 30 s or more per cycle",
@@ -43,5 +45,6 @@
     "Uses the saved password - save first if you changed it": "Uses the saved password - save first if you changed it",
     "Verify TLS certificate": "Verify TLS certificate",
     "Verify by reading back after write": "Verify by reading back after write",
-    "Write allow-list (OIDs)": "Write allow-list (OIDs)"
+    "Write allow-list (OIDs)": "Write allow-list (OIDs)",
+    "ioBroker system language": "ioBroker system language"
 }

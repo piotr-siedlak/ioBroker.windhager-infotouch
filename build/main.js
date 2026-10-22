@@ -45,6 +45,8 @@ const DiagnosticsService_1 = require("./services/DiagnosticsService");
 const PollingService_1 = require("./services/PollingService");
 const ScheduleService_1 = require("./services/ScheduleService");
 const StateRegistry_1 = require("./services/StateRegistry");
+const ResourceTexts_1 = require("./api/ResourceTexts");
+const Naming_1 = require("./mappings/Naming");
 const Sanitization_1 = require("./utils/Sanitization");
 const Validation_1 = require("./utils/Validation");
 const CACHE_OBJECT = 'cache';
@@ -84,6 +86,7 @@ class WindhagerAdapter extends utils.Adapter {
         await this.setConnected(false);
         const { config, problems } = (0, Validation_1.normalizeConfig)(this.config);
         this.cfg = config;
+        this.textLanguage = config.language || (await this.systemLanguage());
         for (const problem of problems) {
             this.logSafe('warn', problem);
         }
@@ -105,6 +108,17 @@ class WindhagerAdapter extends utils.Adapter {
         this.diagTimer = setInterval(() => void this.publishDiagnostics(), 30_000);
         await this.subscribeStatesAsync('diagnostics.rescan');
         await this.connect();
+    }
+    textLanguage = 'en';
+    async systemLanguage() {
+        try {
+            const sys = await this.getForeignObjectAsync('system.config');
+            const lang = sys?.common?.language;
+            return typeof lang === 'string' && /^[a-z]{2}/.test(lang) ? lang.slice(0, 2) : 'en';
+        }
+        catch {
+            return 'en';
+        }
     }
     async setConnected(value) {
         this.controllerOnline = value;
@@ -212,7 +226,11 @@ class WindhagerAdapter extends utils.Adapter {
             const current = {
                 modules,
                 version: detection.controller?.version ?? null,
-                scanOptions: (0, Datapoint_1.scanFingerprint)({ excludedNodes: this.cfg.excludedNodes, includeLon: this.cfg.pollLon }),
+                scanOptions: (0, Datapoint_1.scanFingerprint)({
+                    excludedNodes: this.cfg.excludedNodes,
+                    includeLon: this.cfg.pollLon,
+                    language: this.textLanguage,
+                }),
             };
             if ((0, CapabilityRegistry_1.isCacheValid)(cached, current, maxAge)) {
                 this.logSafe('info', 'Using cached discovery (module list, firmware and discovery options unchanged)');
@@ -228,8 +246,15 @@ class WindhagerAdapter extends utils.Adapter {
         const catalog = await (0, SystemScanner_1.scanSystem)(api, {
             excludedNodes: this.cfg.excludedNodes,
             includeLon: this.cfg.pollLon,
+            language: this.textLanguage,
             log: m => this.logSafe('debug', m),
         });
+        // Readable names come from the controller's own text tables (read-only GETs); missing tables are fine.
+        const texts = await (0, ResourceTexts_1.loadTextTables)(this.http, this.textLanguage, m => this.logSafe('debug', m));
+        (0, Naming_1.applyLabels)(catalog, texts);
+        this.logSafe('info', texts.variables.size > 0
+            ? `Names loaded from controller (${texts.language}): ${texts.variables.size} datapoint, ${texts.levels.size} menu, ${texts.enums.size} enum texts`
+            : 'Controller text tables not available - using generic names');
         try {
             await this.writeFileAsync(`${this.namespace}.${CACHE_OBJECT}`, CACHE_FILE, JSON.stringify(catalog));
         }

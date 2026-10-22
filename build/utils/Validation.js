@@ -26,6 +26,7 @@ exports.DEFAULT_CONFIG = {
     writesEnabled: false,
     writeAllowlist: '',
     verifyWrites: true,
+    language: '',
 };
 const clamp = (value, min, max, fallback) => {
     const n = Number(value);
@@ -101,6 +102,7 @@ function normalizeConfig(raw) {
         writesEnabled: c.writesEnabled === true,
         writeAllowlist,
         verifyWrites: c.verifyWrites !== false,
+        language: typeof c.language === 'string' && /^[a-z]{2}$/.test(c.language) ? c.language : '',
     };
     return { config, problems };
 }

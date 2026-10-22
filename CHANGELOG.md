@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0 (unreleased)
+
+- Readable names: datapoints, menu groups and enum values are named from the controller's own text tables
+  (`/res/xml/VarIdentTexte`, `EbenenTexte`, `AufzaehlTexte`), keyed by the `groupNr`/`memberNr` the API reports.
+  New option "Language of names" (default: ioBroker system language, fallback English, then German).
+- Generic API names ("02-010", "Knoten 15", "Funktion 14-0") are no longer used as labels.
+- State objects now carry `common.desc` (OID and group-member code) and `native.groupNr/memberNr/nativeName`.
+- Discovery cache schema v3 (language is part of the cache fingerprint); first start after the update rescans.
+- Object ids are unchanged.
+
 ## 0.1.2 (unreleased)
 
 - **Breaking:** adapter renamed from `windhager` to `windhager-infotouch` (package `iobroker.windhager-infotouch`,
