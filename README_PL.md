@@ -31,7 +31,7 @@ Identyfikatory powstają z numerycznych OID sterownika, nigdy z nazw wyświetlan
 
 ```bash
 cd /opt/iobroker
-npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager.git
+npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager-infotouch.git
 iobroker upload windhager
 iobroker add windhager
 ```

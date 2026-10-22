@@ -32,7 +32,7 @@ enum codes are kept on the objects. See [docs/STATES.md](docs/STATES.md). Friend
 
 ```bash
 cd /opt/iobroker
-npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager.git
+npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager-infotouch.git
 iobroker upload windhager
 iobroker add windhager
 ```

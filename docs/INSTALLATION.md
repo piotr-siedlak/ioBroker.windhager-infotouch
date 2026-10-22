@@ -16,7 +16,7 @@ The ioBroker host needs an SSH key with read access to the repository.
 
 ```bash
 cd /opt/iobroker
-npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager.git
+npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager-infotouch.git
 iobroker upload windhager
 iobroker add windhager
 ```

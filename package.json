@@ -6,7 +6,7 @@
         "name": "piotr-siedlak",
         "email": "siedlak.piotr@gmail.com"
     },
-    "homepage": "https://github.com/piotr-siedlak/ioBroker.windhager",
+    "homepage": "https://github.com/piotr-siedlak/ioBroker.windhager-infotouch",
     "license": "MIT",
     "keywords": [
         "ioBroker",
@@ -17,7 +17,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager.git"
+        "url": "git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager-infotouch.git"
     },
     "engines": {
         "node": ">=20"
