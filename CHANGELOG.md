@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.0 (unreleased)
+
+Based on a read-only probe of a real InfoWIN Touch MB6621 (firmware 0.10.4) and the controller's own Swagger docs.
+
+- **Breaking - fix:** OIDs are `/<subnet>/<node>/<function>/<group>/<member>/<instance>`. Earlier versions read the
+  4th segment as the menu level, which filed states under non-existent `grp_*` channels and broke name lookup.
+  State ids are now `modules.node_<n>.fn_<f>.<GG-MMM>` (the controller's own code, e.g. `03-051`). Old objects are
+  marked stale, not deleted; delete `modules.*.grp_*` by hand if you like.
+- Fix: single-datapoint read uses `GET /api/1.0/datapoint<OID>` (documented route) instead of `/lookup<OID>`.
+- Names combine menu level and variable like the controller UI ("Heating limits: Max. flow temp.").
+- Enum texts are applied to integer datapoints without an `enum` list ("Off / 0 to 10V / PWM").
+- Dates and times (`22.10.2026`, `14:54`) are text states; numeric-only unit ids are no longer shown as units.
+- Structured objects (versions, function names, time programs) are read via `/api/1.0/object` into the same tree;
+  the separate `schedules.*` tree is gone.
+- Datapoints that only the controller cache knows (actual room/flow temperature, time programs, operation mode)
+  are discovered and polled individually.
+- New docs: `docs/API_REFERENCE.md` (all 201 controller operations, classified), `docs/DATAPOINTS_MB6621.md`.
+- Tests against a sanitised real-device capture.
+
 ## 0.2.0 (unreleased)
 
 - Readable names: datapoints, menu groups and enum values are named from the controller's own text tables

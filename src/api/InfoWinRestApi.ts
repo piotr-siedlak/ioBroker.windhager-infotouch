@@ -114,7 +114,7 @@ export class InfoWinRestApi implements WritableControllerApi {
 
     private parseItems(items: unknown[], nodeId: number, fctId: number, lookupId: number, into: GroupReadResult): void {
         for (const item of items) {
-            const dp = parseDatapoint(item);
+            const dp = parseDatapoint(item, lookupId);
             if (dp) {
                 into.datapoints.push(dp);
                 continue;
@@ -176,13 +176,25 @@ export class InfoWinRestApi implements WritableControllerApi {
         if (!parseOid(oid)) {
             throw validationError(`Invalid OID: ${oid}`);
         }
-        for (const item of await this.lookupArray(oid)) {
+        // Swagger RestApiRC7030: GET /datapoint/{subnetId}/{nodeId}/{fctId}/{groupId}/{memberId}/{varInst}.
+        // (Not /lookup<OID>: the lookup tree is addressed by menu level, which is not part of the OID.)
+        const data = await this.http.getJson(`/api/1.0/datapoint${oid}`);
+        const items = Array.isArray(data) ? data : [data];
+        for (const item of items) {
             const dp = parseDatapoint(item);
             if (dp && dp.oid === oid) {
                 return dp;
             }
         }
         return null;
+    }
+
+    public async readCachedDatapoints(): Promise<Datapoint[]> {
+        const data = await this.http.getJson('/api/1.0/datapoints');
+        if (!Array.isArray(data)) {
+            throw malformedError('Unexpected datapoints payload');
+        }
+        return data.map(item => parseDatapoint(item)).filter((dp): dp is Datapoint => dp !== null);
     }
 
     public async readObject(oid: string): Promise<unknown> {

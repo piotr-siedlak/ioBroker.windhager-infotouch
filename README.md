@@ -17,14 +17,16 @@ Local, capability-driven ioBroker adapter for **Windhager InfoWIN Touch / MES IN
 ```
 windhager-infotouch.0
   info.{connection, controllerModel, firmwareVersion, protocolVersion, lastSuccessfulPoll, lastError}
-  modules.node_<n>.fn_<f>.grp_<l>.dp_<member>_<instance>     one state per discovered datapoint
-  lon.node_<n>...nv_<i>                                      optional, raw, read-only
-  schedules.<key>                                            optional, verbatim JSON, read-only, experimental
+  modules.node_<n>.fn_<f>.<GG-MMM>                           one state per datapoint, e.g. modules.node_15.fn_0.03-051
+  lon.node_<n>.nv_<i>                                        optional, raw, read-only
   raw.<key>                                                  optional, unconverted strings
   diagnostics.{requests, failures, lastLatencyMs, avgLatencyMs, consecutiveFailures, datapoints, catalogAgeHours, rescan}
 ```
 
-Ids are built from the controller's numeric OIDs, never from localized names. Native names, units, min/max/step and
+Ids are built from the controller's numeric OIDs (its own `GG-MMM` codes), never from localized names. Names come
+from the controller's own text tables, e.g. "Room temp. set points: Heating mode"; see
+[docs/DATAPOINTS_MB6621.md](docs/DATAPOINTS_MB6621.md) for a real installation and
+[docs/API_REFERENCE.md](docs/API_REFERENCE.md) for the controller's full API. Native names, units, min/max/step and
 enum codes are kept on the objects. See [docs/STATES.md](docs/STATES.md). Friendly aliases such as
 `heatingCircuits.hc_1` are **not** created yet because their meaning is unverified for gas appliances.
 

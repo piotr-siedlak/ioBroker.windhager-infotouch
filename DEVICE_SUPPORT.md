@@ -3,7 +3,9 @@
 Levels: **implemented** (code exists) / **fixture-tested** (tests against our synthetic fake server) /
 **real-device-tested** (verified by a person against hardware) / **experimental** / **unsupported**.
 
-**No row below has been real-device-tested by this project.**
+**Real-device evidence:** read-only discovery, naming, value typing and object reading were verified against an
+InfoWIN Touch MB6621 (firmware 0.10.4) with UMUMLZ + ZSP-SOFU modules and an eBUS gas boiler, using a captured
+probe replayed in tests. Live polling over hours and any write have **not** been tested on hardware.
 
 | Area                                                          | Implemented                             | Fixture-tested | Real-device-tested | Notes                                                         |
 | ------------------------------------------------------------- | --------------------------------------- | -------------- | ------------------ | ------------------------------------------------------------- |

@@ -9,7 +9,7 @@ import { CATALOG_SCHEMA_VERSION, scanFingerprint, type Catalog } from './models/
 import { CommandService } from './services/CommandService';
 import { DiagnosticsService } from './services/DiagnosticsService';
 import { PollingService, type PollTarget } from './services/PollingService';
-import { readSchedules } from './services/ScheduleService';
+import { readObjects } from './services/ObjectService';
 import { StateRegistry, type AdapterPort } from './services/StateRegistry';
 import { loadTextTables } from './api/ResourceTexts';
 import { applyLabels } from './mappings/Naming';
@@ -382,20 +382,14 @@ class WindhagerAdapter extends utils.Adapter {
 
     private lastScheduleRead = 0;
 
-    /** Schedules are read at most every 15 min, stored verbatim and read-only (experimental). */
+    /** Structured objects (versions, time programs) are read at most every 15 min, read-only. */
     private async maybePollSchedules(): Promise<void> {
-        if (!this.api || !this.catalog || Date.now() - this.lastScheduleRead < 15 * 60_000) {
+        if (!this.api || !this.catalog || !this.registry || Date.now() - this.lastScheduleRead < 15 * 60_000) {
             return;
         }
         this.lastScheduleRead = Date.now();
-        for (const s of await readSchedules(this.api, this.catalog)) {
-            const id = `schedules.${s.key.replace(/\./g, '_')}`;
-            await this.extendObject(id, {
-                type: 'state',
-                common: { name: s.name || s.oid, type: 'string', role: 'json', read: true, write: false },
-                native: { oid: s.oid, key: s.key, experimental: true },
-            });
-            await this.setStateChangedAsync(id, { val: s.json, ack: true });
+        for (const o of await readObjects(this.api, this.catalog)) {
+            await this.registry.applyObjectValue(o.oid, o.value);
         }
     }
 

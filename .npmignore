@@ -7,3 +7,4 @@ docs/
 tsconfig*.json
 eslint.config.mjs
 .prettierrc.js
+tools/

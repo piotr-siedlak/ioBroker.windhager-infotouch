@@ -19,8 +19,8 @@ możliwości sterownika.
 ```
 windhager-infotouch.0
   info.*                         połączenie, model, wersja, ostatni odczyt, ostatni błąd
-  modules.node_<n>.fn_<f>.grp_<l>.dp_<member>_<instance>
-  lon.*   schedules.*   raw.*    opcjonalne, tylko odczyt
+  modules.node_<n>.fn_<f>.<GG-MMM>   np. modules.node_15.fn_0.03-051 (kod sterownika)
+  lon.*   raw.*                  opcjonalne, tylko odczyt
   diagnostics.*                  liczniki, opóźnienia, przycisk rescan
 ```
 

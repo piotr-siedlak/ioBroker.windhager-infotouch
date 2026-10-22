@@ -1,5 +1,6 @@
 import type { TextTables } from '../api/ResourceTexts';
-import type { Catalog, Datapoint, FunctionInfo, LookupGroup, ModuleInfo } from '../models/Datapoint';
+import { displayCode } from '../api/parsers';
+import type { Catalog, Datapoint, FunctionInfo, ModuleInfo } from '../models/Datapoint';
 
 /** API names that only encode numbers (e.g. "02-010", "Knoten 15", "Funktion 14-0") carry no meaning. */
 const GENERIC_NAME = /^(\d{1,3}-\d{1,3}|(knoten|node|modul|module)\s*\d+|(funktion|function)\s*-?\d+(-\d+)?|)$/i;
@@ -8,14 +9,29 @@ export function isGenericName(name: string | null | undefined): boolean {
     return GENERIC_NAME.test((name ?? '').trim());
 }
 
-const varKey = (dp: Pick<Datapoint, 'groupNr' | 'memberNr'>): string | null =>
-    dp.groupNr !== null && dp.memberNr !== null && dp.groupNr >= 0 && dp.memberNr >= 0
-        ? `${dp.groupNr}:${dp.memberNr}`
-        : null;
+const varKey = (dp: Pick<Datapoint, 'groupNr' | 'memberNr'>): string => `${dp.groupNr}:${dp.memberNr}`;
 
-export function datapointLabel(dp: Datapoint, texts: TextTables): string | undefined {
-    const key = varKey(dp);
-    const fromTable = key ? texts.variables.get(key) : undefined;
+/**
+ * Combine the menu level ("Heating limits") and variable ("Max. flow temp.") names the way the controller's
+ * own UI presents them: variable names alone are often ambiguous ("Set point", "Actual").
+ *
+ * @param level Menu level name
+ * @param variable Variable name
+ */
+export function composeName(level: string | undefined, variable: string | undefined): string | undefined {
+    const l = level?.trim();
+    const v = variable?.trim();
+    if (!v) {
+        return l || undefined;
+    }
+    if (!l || v.toLowerCase().includes(l.toLowerCase())) {
+        return v;
+    }
+    return `${l}: ${v}`;
+}
+
+export function variableText(dp: Datapoint, texts: TextTables): string | undefined {
+    const fromTable = texts.variables.get(varKey(dp));
     if (fromTable) {
         return fromTable;
     }
@@ -23,12 +39,11 @@ export function datapointLabel(dp: Datapoint, texts: TextTables): string | undef
 }
 
 export function enumTextsFor(dp: Datapoint, texts: TextTables): Record<string, string> | undefined {
-    const key = varKey(dp);
-    return key ? texts.enums.get(key) : undefined;
+    return texts.enums.get(varKey(dp));
 }
 
-export function groupLabel(group: LookupGroup, fn: FunctionInfo, texts: TextTables): string | undefined {
-    return texts.levels.get(`${fn.fctType}:${group.lookupId}`);
+export function levelText(fn: Pick<FunctionInfo, 'fctType'>, levelId: number, texts: TextTables): string | undefined {
+    return texts.levels.get(`${fn.fctType}:${levelId}`);
 }
 
 export function functionLabel(fn: FunctionInfo): string | undefined {
@@ -55,9 +70,19 @@ export function applyLabels(catalog: Catalog, texts: TextTables): void {
         for (const fn of module.functions) {
             fn.label = functionLabel(fn);
             for (const group of fn.lookups) {
-                group.label = groupLabel(group, fn, texts);
+                group.label = levelText(fn, group.lookupId, texts);
                 for (const dp of group.datapoints) {
-                    dp.label = datapointLabel(dp, texts);
+                    dp.levelLabel = group.label;
+                    const variable = variableText(dp, texts);
+                    // Without a variable name the level alone is not unique: add the controller code.
+                    // Without a menu level (cache-only values) or without a variable text, the code keeps names unique.
+                    dp.label = !variable
+                        ? group.label
+                            ? `${group.label} (${displayCode(dp)})`
+                            : undefined
+                        : group.label
+                          ? composeName(group.label, variable)
+                          : `${variable} (${displayCode(dp)})`;
                     const enumTexts = enumTextsFor(dp, texts);
                     if (enumTexts) {
                         dp.enumTexts = enumTexts;

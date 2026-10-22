@@ -61,7 +61,7 @@ describe('StateRegistry', () => {
         const port = new MemoryPort();
         await new StateRegistry(port, registryOpts).sync(catalog);
         const sp = port.objects.get(
-            StateRegistry.stateId({ nodeId: 16, fctId: 0, lookupId: 3, memberId: 21, instance: 0 }),
+            StateRegistry.stateId({ subnet: 1, nodeId: 16, fctId: 0, groupNr: 3, memberNr: 21, instance: 0 }),
         )!;
         assert.equal(sp.common!.write, false);
         assert.equal(sp.common!.unit, '°C');
@@ -247,7 +247,7 @@ describe('CommandService', () => {
         fake.behaviour.ignoreWrites = true;
         await service({ readbackAttempts: 3 }).write(OID.hc1RoomSetpoint, 25);
         const singleReads = fake.requests.filter(
-            x => x.method === 'GET' && x.url === `/api/1.0/lookup${OID.hc1RoomSetpoint}`,
+            x => x.method === 'GET' && x.url === `/api/1.0/datapoint${OID.hc1RoomSetpoint}`,
         );
         assert.equal(singleReads.filter(x => x.authorized).length, 3);
     });

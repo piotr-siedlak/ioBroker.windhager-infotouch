@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PollingService = void 0;
 const errors_1 = require("../api/errors");
+const SystemScanner_1 = require("../discovery/SystemScanner");
 const DEFAULT_OPTIONS = { offlineThreshold: 3, maxBackoffFactor: 8 };
 /**
  * One timer chain per category (never setInterval, so cycles cannot overlap). A group belongs to exactly
@@ -90,7 +91,9 @@ class PollingService {
                     return false;
                 }
                 try {
-                    const result = await this.api.readGroup(target.group.nodeId, target.group.fctId, target.group.lookupId, target.group.count);
+                    const result = target.group.lookupId === SystemScanner_1.DIRECT_GROUP_ID
+                        ? await this.readDirect(target.group)
+                        : await this.api.readGroup(target.group.nodeId, target.group.fctId, target.group.lookupId, target.group.count);
                     await this.callbacks.onGroup(target.group, result);
                     if (this.options.includeLon && category === 'slow' && target.group.lon.length > 0) {
                         await this.pollLon(target.group);
@@ -122,6 +125,23 @@ class PollingService {
         const factor = Math.min(this.options.maxBackoffFactor, 2 ** Math.max(0, this.consecutiveFailures - 1));
         this.schedule(category, base * (ok ? 1 : factor));
         return ok;
+    }
+    /** Datapoints listed in no menu are read one by one (structured objects are left to the object reader). */
+    async readDirect(group) {
+        const result = { datapoints: [], lon: [], skipped: 0 };
+        for (const dp of group.datapoints) {
+            if (dp.typeId === 30 || !this.running) {
+                continue;
+            }
+            const fresh = await this.api.readDatapoint(dp.oid);
+            if (fresh) {
+                result.datapoints.push(fresh);
+            }
+            else {
+                result.skipped++;
+            }
+        }
+        return result;
     }
     async pollLon(group) {
         const values = [];

@@ -14,8 +14,18 @@
         "skipLibCheck": true,
         "sourceMap": true,
         "resolveJsonModule": true,
-        "types": ["node", "@iobroker/types"]
+        "types": [
+            "node",
+            "@iobroker/types"
+        ]
     },
-    "include": ["src/**/*.ts", "test/**/*.ts"],
-    "exclude": ["build/**", "node_modules/**"]
+    "include": [
+        "src/**/*.ts",
+        "test/**/*.ts",
+        "tools/**/*.ts"
+    ],
+    "exclude": [
+        "build/**",
+        "node_modules/**"
+    ]
 }

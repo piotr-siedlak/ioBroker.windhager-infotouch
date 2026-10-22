@@ -42,6 +42,11 @@ export interface ControllerApi {
     listLookups(nodeId: number, fctId: number): Promise<LookupListItem[]>;
     /** Read all entries of one lookup group (the unit of polling). */
     readGroup(nodeId: number, fctId: number, lookupId: number, announcedCount: number): Promise<GroupReadResult>;
+    /**
+     * The controller's cache of recently read datapoints (`GET /api/1.0/datapoints`). A superset of the menu tree
+     * (main-screen values, time programs); used only to discover datapoints that no menu lists.
+     */
+    readCachedDatapoints(): Promise<Datapoint[]>;
     /** Re-read a single datapoint by native OID (used for write read-back). */
     readDatapoint(oid: string): Promise<Datapoint | null>;
     /** Read a structured object (e.g. a time program) by native OID. Payload shape is firmware-specific. */

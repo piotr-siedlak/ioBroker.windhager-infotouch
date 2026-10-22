@@ -43,7 +43,7 @@ const Datapoint_1 = require("./models/Datapoint");
 const CommandService_1 = require("./services/CommandService");
 const DiagnosticsService_1 = require("./services/DiagnosticsService");
 const PollingService_1 = require("./services/PollingService");
-const ScheduleService_1 = require("./services/ScheduleService");
+const ObjectService_1 = require("./services/ObjectService");
 const StateRegistry_1 = require("./services/StateRegistry");
 const ResourceTexts_1 = require("./api/ResourceTexts");
 const Naming_1 = require("./mappings/Naming");
@@ -371,20 +371,14 @@ class WindhagerAdapter extends utils.Adapter {
         await this.publishDiagnostics();
     }
     lastScheduleRead = 0;
-    /** Schedules are read at most every 15 min, stored verbatim and read-only (experimental). */
+    /** Structured objects (versions, time programs) are read at most every 15 min, read-only. */
     async maybePollSchedules() {
-        if (!this.api || !this.catalog || Date.now() - this.lastScheduleRead < 15 * 60_000) {
+        if (!this.api || !this.catalog || !this.registry || Date.now() - this.lastScheduleRead < 15 * 60_000) {
             return;
         }
         this.lastScheduleRead = Date.now();
-        for (const s of await (0, ScheduleService_1.readSchedules)(this.api, this.catalog)) {
-            const id = `schedules.${s.key.replace(/\./g, '_')}`;
-            await this.extendObject(id, {
-                type: 'state',
-                common: { name: s.name || s.oid, type: 'string', role: 'json', read: true, write: false },
-                native: { oid: s.oid, key: s.key, experimental: true },
-            });
-            await this.setStateChangedAsync(id, { val: s.json, ack: true });
+        for (const o of await (0, ObjectService_1.readObjects)(this.api, this.catalog)) {
+            await this.registry.applyObjectValue(o.oid, o.value);
         }
     }
     async publishDiagnostics() {

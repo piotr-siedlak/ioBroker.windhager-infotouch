@@ -1,6 +1,6 @@
 {
     "name": "iobroker.windhager-infotouch",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Local-first, read-only-by-default ioBroker adapter for Windhager InfoWIN Touch / MES INFINITY heating controllers",
     "author": {
         "name": "piotr-siedlak",

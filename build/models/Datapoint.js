@@ -10,7 +10,7 @@ function scanFingerprint(options) {
         language: options.language ?? '',
     };
 }
-exports.CATALOG_SCHEMA_VERSION = 3;
+exports.CATALOG_SCHEMA_VERSION = 4;
 function moduleSignature(modules) {
     return modules
         .map(m => `${m.nodeId}:${m.programId}:${m.neuronId}`)

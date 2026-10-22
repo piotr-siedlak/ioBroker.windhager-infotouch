@@ -1,34 +1,50 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isGenericName = isGenericName;
-exports.datapointLabel = datapointLabel;
+exports.composeName = composeName;
+exports.variableText = variableText;
 exports.enumTextsFor = enumTextsFor;
-exports.groupLabel = groupLabel;
+exports.levelText = levelText;
 exports.functionLabel = functionLabel;
 exports.moduleLabel = moduleLabel;
 exports.applyLabels = applyLabels;
+const parsers_1 = require("../api/parsers");
 /** API names that only encode numbers (e.g. "02-010", "Knoten 15", "Funktion 14-0") carry no meaning. */
 const GENERIC_NAME = /^(\d{1,3}-\d{1,3}|(knoten|node|modul|module)\s*\d+|(funktion|function)\s*-?\d+(-\d+)?|)$/i;
 function isGenericName(name) {
     return GENERIC_NAME.test((name ?? '').trim());
 }
-const varKey = (dp) => dp.groupNr !== null && dp.memberNr !== null && dp.groupNr >= 0 && dp.memberNr >= 0
-    ? `${dp.groupNr}:${dp.memberNr}`
-    : null;
-function datapointLabel(dp, texts) {
-    const key = varKey(dp);
-    const fromTable = key ? texts.variables.get(key) : undefined;
+const varKey = (dp) => `${dp.groupNr}:${dp.memberNr}`;
+/**
+ * Combine the menu level ("Heating limits") and variable ("Max. flow temp.") names the way the controller's
+ * own UI presents them: variable names alone are often ambiguous ("Set point", "Actual").
+ *
+ * @param level Menu level name
+ * @param variable Variable name
+ */
+function composeName(level, variable) {
+    const l = level?.trim();
+    const v = variable?.trim();
+    if (!v) {
+        return l || undefined;
+    }
+    if (!l || v.toLowerCase().includes(l.toLowerCase())) {
+        return v;
+    }
+    return `${l}: ${v}`;
+}
+function variableText(dp, texts) {
+    const fromTable = texts.variables.get(varKey(dp));
     if (fromTable) {
         return fromTable;
     }
     return isGenericName(dp.name) ? undefined : dp.name;
 }
 function enumTextsFor(dp, texts) {
-    const key = varKey(dp);
-    return key ? texts.enums.get(key) : undefined;
+    return texts.enums.get(varKey(dp));
 }
-function groupLabel(group, fn, texts) {
-    return texts.levels.get(`${fn.fctType}:${group.lookupId}`);
+function levelText(fn, levelId, texts) {
+    return texts.levels.get(`${fn.fctType}:${levelId}`);
 }
 function functionLabel(fn) {
     return isGenericName(fn.name) ? undefined : fn.name;
@@ -52,9 +68,19 @@ function applyLabels(catalog, texts) {
         for (const fn of module.functions) {
             fn.label = functionLabel(fn);
             for (const group of fn.lookups) {
-                group.label = groupLabel(group, fn, texts);
+                group.label = levelText(fn, group.lookupId, texts);
                 for (const dp of group.datapoints) {
-                    dp.label = datapointLabel(dp, texts);
+                    dp.levelLabel = group.label;
+                    const variable = variableText(dp, texts);
+                    // Without a variable name the level alone is not unique: add the controller code.
+                    // Without a menu level (cache-only values) or without a variable text, the code keeps names unique.
+                    dp.label = !variable
+                        ? group.label
+                            ? `${group.label} (${(0, parsers_1.displayCode)(dp)})`
+                            : undefined
+                        : group.label
+                            ? composeName(group.label, variable)
+                            : `${variable} (${(0, parsers_1.displayCode)(dp)})`;
                     const enumTexts = enumTextsFor(dp, texts);
                     if (enumTexts) {
                         dp.enumTexts = enumTexts;

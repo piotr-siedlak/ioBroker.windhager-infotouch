@@ -1,4 +1,6 @@
 import { isWritableByController } from '../discovery/CapabilityRegistry';
+import { displayCode } from '../api/parsers';
+import { OBJECT_TYPE_ID } from './ObjectService';
 import { coerceValue, shapeFor, type StateKind } from '../mappings/StateRoles';
 import type { Catalog, Datapoint, LonVariable } from '../models/Datapoint';
 
@@ -53,13 +55,24 @@ export class StateRegistry {
         private readonly options: RegistryOptions,
     ) {}
 
-    /** Relative state id for a datapoint. Based only on native numeric identifiers. */
-    public static stateId(dp: Pick<Datapoint, 'nodeId' | 'fctId' | 'lookupId' | 'memberId' | 'instance'>): string {
-        return `modules.node_${dp.nodeId}.fn_${dp.fctId}.grp_${dp.lookupId}.dp_${dp.memberId}_${dp.instance}`;
+    /** Module segment; the subnet is only added when it is not the usual subnet 1. */
+    public static nodeSegment(subnet: number, nodeId: number): string {
+        return subnet === 1 ? `node_${nodeId}` : `node_${subnet}_${nodeId}`;
     }
 
-    public static lonStateId(nv: Pick<LonVariable, 'nodeId' | 'fctId' | 'lookupId' | 'index'>): string {
-        return `lon.node_${nv.nodeId}.fn_${nv.fctId}.grp_${nv.lookupId}.nv_${nv.index}`;
+    /**
+     * Relative state id for a datapoint, built only from its OID: `modules.node_15.fn_0.03-051` uses the controller's
+     * own display code (group-member), so ids match what the controller shows and never depend on names or menus.
+     */
+    public static stateId(
+        dp: Pick<Datapoint, 'subnet' | 'nodeId' | 'fctId' | 'groupNr' | 'memberNr' | 'instance'>,
+    ): string {
+        const inst = dp.instance === 0 ? '' : `_${dp.instance}`;
+        return `modules.${StateRegistry.nodeSegment(dp.subnet, dp.nodeId)}.fn_${dp.fctId}.${displayCode(dp)}${inst}`;
+    }
+
+    public static lonStateId(nv: Pick<LonVariable, 'nodeId' | 'index'>): string {
+        return `lon.node_${nv.nodeId}.nv_${nv.index}`;
     }
 
     /** Whether a datapoint will be exposed as writable: controller flag AND global switch AND allow-list. */
@@ -89,7 +102,7 @@ export class StateRegistry {
         const previouslyStale = await this.collectStale();
 
         for (const module of catalog.modules) {
-            const nodeId = `modules.node_${module.nodeId}`;
+            const nodeId = `modules.${StateRegistry.nodeSegment(module.subnet, module.nodeId)}`;
             await this.port.extendObject(nodeId, {
                 type: 'device',
                 common: { name: module.label ?? `Module ${module.nodeId}` },
@@ -103,11 +116,6 @@ export class StateRegistry {
                     native: { fctId: fn.fctId, fctType: fn.fctType, locked: fn.locked },
                 });
                 for (const group of fn.lookups) {
-                    await this.port.extendObject(`${fnId}.grp_${group.lookupId}`, {
-                        type: 'channel',
-                        common: { name: group.label ?? `Group ${group.lookupId}` },
-                        native: { lookupId: group.lookupId, count: group.count },
-                    });
                     for (const dp of group.datapoints) {
                         await this.ensureDatapoint(dp);
                         seen.add(dp.key);
@@ -134,8 +142,8 @@ export class StateRegistry {
         await this.port.extendObject(id, {
             type: 'state',
             common: {
-                name: dp.label ?? (dp.name || `OID ${dp.oid}`),
-                desc: `${dp.oid}${dp.groupNr !== null && dp.groupNr >= 0 ? ` (${dp.groupNr}-${dp.memberNr})` : ''}`,
+                name: dp.label ?? `${displayCode(dp)}${dp.levelLabel ? ` (${dp.levelLabel})` : ''}`,
+                desc: `${displayCode(dp)} · ${dp.oid}${dp.levelLabel ? ` · ${dp.levelLabel}` : ''}`,
                 type: shape.type,
                 role: shape.role,
                 read: true,
@@ -148,8 +156,8 @@ export class StateRegistry {
             native: {
                 key: dp.key,
                 oid: dp.oid,
-                groupNr: dp.groupNr,
-                memberNr: dp.memberNr,
+                code: displayCode(dp),
+                levelId: dp.levelId,
                 nativeName: dp.name,
                 typeId: dp.typeId,
                 subtypeId: dp.subtypeId,
@@ -231,12 +239,28 @@ export class StateRegistry {
             if (!entry) {
                 continue; // not in catalog (appeared after discovery); picked up on next rescan
             }
+            if (dp.typeId === OBJECT_TYPE_ID) {
+                continue; // structured objects carry no value in lookups; published by the object reader
+            }
             const val = coerceValue(dp.value, entry.type);
             this.lastValues.set(entry.id, val);
             await this.port.setStateChanged(entry.id, { val, ack: true, q: Q_GOOD });
             if (this.options.exposeRaw) {
                 await this.port.setStateChanged(`raw.${slug(dp.key)}`, { val: dp.value, ack: true, q: Q_GOOD });
             }
+        }
+    }
+
+    /**
+     * Publish the value of a structured object (read separately via /api/1.0/object).
+     *
+     * @param oid Object OID
+     * @param value Text or JSON
+     */
+    public async applyObjectValue(oid: string, value: string): Promise<void> {
+        const entry = this.entries.get(oid);
+        if (entry) {
+            await this.port.setStateChanged(entry.id, { val: value, ack: true, q: Q_GOOD });
         }
     }
 

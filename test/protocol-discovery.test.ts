@@ -4,7 +4,7 @@ import { detectProtocol } from '../src/api/ProtocolDetector';
 import { InfoWinRestApi } from '../src/api/InfoWinRestApi';
 import { indexCatalog, isCacheValid, summarize } from '../src/discovery/CapabilityRegistry';
 import { scanSystem } from '../src/discovery/SystemScanner';
-import { findScheduleDatapoints, readSchedules } from '../src/services/ScheduleService';
+import { findObjectDatapoints, readObjects } from '../src/services/ObjectService';
 import { emptyFixture, gasBoilerFixture, OID } from './fixtures/gasBoiler';
 import { FakeController } from './helpers/FakeController';
 import { makeClient } from './helpers/util';
@@ -87,7 +87,7 @@ describe('discovery', () => {
         assert.equal(cat.modules.length, 4);
         const idx = indexCatalog(cat);
         const setpoint = idx.byOid.get(OID.hc1RoomSetpoint)!;
-        assert.equal(setpoint.key, 'n16.f0.l3.m21.i0');
+        assert.equal(setpoint.key, 's1.n16.f0.g3.m21.i0');
         assert.deepEqual(
             [setpoint.min, setpoint.max, setpoint.step, setpoint.unit, setpoint.writeProtected],
             [10, 30, 0.5, '°C', false],
@@ -171,12 +171,12 @@ describe('discovery', () => {
 
     it('reads schedules verbatim and read-only', async () => {
         const cat = await scan();
-        assert.equal(findScheduleDatapoints(cat).length, 1);
+        assert.equal(findObjectDatapoints(cat).length, 1);
         const c = makeClient(fake);
-        const snaps = await readSchedules(new InfoWinRestApi(c), cat);
+        const snaps = await readObjects(new InfoWinRestApi(c), cat);
         c.close();
         assert.equal(snaps.length, 1);
-        assert.match(snaps[0].json, /switchPoints/);
+        assert.match(snaps[0].value, /switchPoints/);
         assert.ok(fake.requests.every(r => r.method === 'GET'));
     });
 });

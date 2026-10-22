@@ -16,9 +16,10 @@ Names below are generated from discovery; **nothing here is a promise that a giv
 
 ## Dynamic
 
-`modules.node_<nodeId>.fn_<fctId>.grp_<lookupId>.dp_<memberId>_<instance>`
+`modules.node_<nodeId>.fn_<fctId>.<GG>-<MMM>[_<instance>]` - `GG-MMM` is the controller's own code (group-member, as
+shown in its service menus and in `docs/DATAPOINTS_MB6621.md`). Subnets other than 1 appear as `node_<subnet>_<node>`.
 
-Example (synthetic): `modules.node_16.fn_0.grp_3.dp_21_0`
+Example (real): `modules.node_15.fn_0.03-051` = "Room temp. set points: Heating mode", 20.0 °C.
 
 | Object field               | Source                                                                                                                                                                                        |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -34,7 +35,9 @@ Example (synthetic): `modules.node_16.fn_0.grp_3.dp_21_0`
 Values are `ack: true`. Quality `q = 0` when fresh, `0x42` when the controller is offline (last value kept) or the
 datapoint disappeared after a rescan (`native.stale = true`; the value is set to `null`, history adapters keep past values). Placeholder values (`-`, empty) become `null`.
 
-Optional trees: `raw.<key>` (strings), `lon.node_..nv_<i>` (raw strings with `native.snvtName`), `schedules.<key>` (verbatim JSON, experimental).
+Structured objects (typeId 30: versions, function names, time programs) live in the same tree; their value is read
+every 15 min via `/api/1.0/object` (text, or verbatim JSON for time programs). Optional trees: `raw.<key>` (strings),
+`lon.node_<n>.nv_<i>` (raw strings with `native.snvtName`).
 
 ## Using the data
 

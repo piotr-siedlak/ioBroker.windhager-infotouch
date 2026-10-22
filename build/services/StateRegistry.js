@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StateRegistry = exports.Q_GOOD = exports.Q_STALE = void 0;
 const CapabilityRegistry_1 = require("../discovery/CapabilityRegistry");
+const parsers_1 = require("../api/parsers");
+const ObjectService_1 = require("./ObjectService");
 const StateRoles_1 = require("../mappings/StateRoles");
 /** Quality flag: device/instance not connected. Used to mark values stale instead of deleting them. */
 exports.Q_STALE = 0x42;
@@ -18,12 +20,20 @@ class StateRegistry {
         this.port = port;
         this.options = options;
     }
-    /** Relative state id for a datapoint. Based only on native numeric identifiers. */
+    /** Module segment; the subnet is only added when it is not the usual subnet 1. */
+    static nodeSegment(subnet, nodeId) {
+        return subnet === 1 ? `node_${nodeId}` : `node_${subnet}_${nodeId}`;
+    }
+    /**
+     * Relative state id for a datapoint, built only from its OID: `modules.node_15.fn_0.03-051` uses the controller's
+     * own display code (group-member), so ids match what the controller shows and never depend on names or menus.
+     */
     static stateId(dp) {
-        return `modules.node_${dp.nodeId}.fn_${dp.fctId}.grp_${dp.lookupId}.dp_${dp.memberId}_${dp.instance}`;
+        const inst = dp.instance === 0 ? '' : `_${dp.instance}`;
+        return `modules.${StateRegistry.nodeSegment(dp.subnet, dp.nodeId)}.fn_${dp.fctId}.${(0, parsers_1.displayCode)(dp)}${inst}`;
     }
     static lonStateId(nv) {
-        return `lon.node_${nv.nodeId}.fn_${nv.fctId}.grp_${nv.lookupId}.nv_${nv.index}`;
+        return `lon.node_${nv.nodeId}.nv_${nv.index}`;
     }
     /** Whether a datapoint will be exposed as writable: controller flag AND global switch AND allow-list. */
     isExposedWritable(dp) {
@@ -48,7 +58,7 @@ class StateRegistry {
         // Snapshot before objects are rewritten: updating an object resets its stale flag.
         const previouslyStale = await this.collectStale();
         for (const module of catalog.modules) {
-            const nodeId = `modules.node_${module.nodeId}`;
+            const nodeId = `modules.${StateRegistry.nodeSegment(module.subnet, module.nodeId)}`;
             await this.port.extendObject(nodeId, {
                 type: 'device',
                 common: { name: module.label ?? `Module ${module.nodeId}` },
@@ -62,11 +72,6 @@ class StateRegistry {
                     native: { fctId: fn.fctId, fctType: fn.fctType, locked: fn.locked },
                 });
                 for (const group of fn.lookups) {
-                    await this.port.extendObject(`${fnId}.grp_${group.lookupId}`, {
-                        type: 'channel',
-                        common: { name: group.label ?? `Group ${group.lookupId}` },
-                        native: { lookupId: group.lookupId, count: group.count },
-                    });
                     for (const dp of group.datapoints) {
                         await this.ensureDatapoint(dp);
                         seen.add(dp.key);
@@ -91,8 +96,8 @@ class StateRegistry {
         await this.port.extendObject(id, {
             type: 'state',
             common: {
-                name: dp.label ?? (dp.name || `OID ${dp.oid}`),
-                desc: `${dp.oid}${dp.groupNr !== null && dp.groupNr >= 0 ? ` (${dp.groupNr}-${dp.memberNr})` : ''}`,
+                name: dp.label ?? `${(0, parsers_1.displayCode)(dp)}${dp.levelLabel ? ` (${dp.levelLabel})` : ''}`,
+                desc: `${(0, parsers_1.displayCode)(dp)} · ${dp.oid}${dp.levelLabel ? ` · ${dp.levelLabel}` : ''}`,
                 type: shape.type,
                 role: shape.role,
                 read: true,
@@ -105,8 +110,8 @@ class StateRegistry {
             native: {
                 key: dp.key,
                 oid: dp.oid,
-                groupNr: dp.groupNr,
-                memberNr: dp.memberNr,
+                code: (0, parsers_1.displayCode)(dp),
+                levelId: dp.levelId,
                 nativeName: dp.name,
                 typeId: dp.typeId,
                 subtypeId: dp.subtypeId,
@@ -180,12 +185,27 @@ class StateRegistry {
             if (!entry) {
                 continue; // not in catalog (appeared after discovery); picked up on next rescan
             }
+            if (dp.typeId === ObjectService_1.OBJECT_TYPE_ID) {
+                continue; // structured objects carry no value in lookups; published by the object reader
+            }
             const val = (0, StateRoles_1.coerceValue)(dp.value, entry.type);
             this.lastValues.set(entry.id, val);
             await this.port.setStateChanged(entry.id, { val, ack: true, q: exports.Q_GOOD });
             if (this.options.exposeRaw) {
                 await this.port.setStateChanged(`raw.${slug(dp.key)}`, { val: dp.value, ack: true, q: exports.Q_GOOD });
             }
+        }
+    }
+    /**
+     * Publish the value of a structured object (read separately via /api/1.0/object).
+     *
+     * @param oid Object OID
+     * @param value Text or JSON
+     */
+    async applyObjectValue(oid, value) {
+        const entry = this.entries.get(oid);
+        if (entry) {
+            await this.port.setStateChanged(entry.id, { val: value, ack: true, q: exports.Q_GOOD });
         }
     }
     async applyLonValues(variables) {

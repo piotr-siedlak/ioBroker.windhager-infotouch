@@ -1,6 +1,7 @@
 import type { ControllerApi, GroupReadResult } from '../api/ControllerApi';
 import { WindhagerError } from '../api/errors';
 import type { PollCategory } from '../discovery/CapabilityRegistry';
+import { DIRECT_GROUP_ID } from '../discovery/SystemScanner';
 import type { LonVariable, LookupGroup } from '../models/Datapoint';
 
 export interface PollTarget {
@@ -131,12 +132,15 @@ export class PollingService {
                     return false;
                 }
                 try {
-                    const result = await this.api.readGroup(
-                        target.group.nodeId,
-                        target.group.fctId,
-                        target.group.lookupId,
-                        target.group.count,
-                    );
+                    const result =
+                        target.group.lookupId === DIRECT_GROUP_ID
+                            ? await this.readDirect(target.group)
+                            : await this.api.readGroup(
+                                  target.group.nodeId,
+                                  target.group.fctId,
+                                  target.group.lookupId,
+                                  target.group.count,
+                              );
                     await this.callbacks.onGroup(target.group, result);
                     if (this.options.includeLon && category === 'slow' && target.group.lon.length > 0) {
                         await this.pollLon(target.group);
@@ -166,6 +170,23 @@ export class PollingService {
         const factor = Math.min(this.options.maxBackoffFactor, 2 ** Math.max(0, this.consecutiveFailures - 1));
         this.schedule(category, base * (ok ? 1 : factor));
         return ok;
+    }
+
+    /** Datapoints listed in no menu are read one by one (structured objects are left to the object reader). */
+    private async readDirect(group: LookupGroup): Promise<GroupReadResult> {
+        const result: GroupReadResult = { datapoints: [], lon: [], skipped: 0 };
+        for (const dp of group.datapoints) {
+            if (dp.typeId === 30 || !this.running) {
+                continue;
+            }
+            const fresh = await this.api.readDatapoint(dp.oid);
+            if (fresh) {
+                result.datapoints.push(fresh);
+            } else {
+                result.skipped++;
+            }
+        }
+        return result;
     }
 
     private async pollLon(group: LookupGroup): Promise<void> {

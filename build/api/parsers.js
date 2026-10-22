@@ -6,11 +6,12 @@ exports.asNumber = asNumber;
 exports.parseEnumField = parseEnumField;
 exports.parseOid = parseOid;
 exports.datapointKey = datapointKey;
+exports.displayCode = displayCode;
 exports.groupKey = groupKey;
 exports.parseDatapoint = parseDatapoint;
 exports.parseLonVariable = parseLonVariable;
-/** OID layout observed in recorded responses: `/1/<node>/<function>/<lookup>/<member>/<instance>`. */
-const OID_RE = /^\/1\/(\d+)\/(\d+)\/(\d+)\/(\d+)\/(\d+)$/;
+/** OID layout: `/<subnet>/<node>/<function>/<group>/<member>/<instance>` (Swagger RestApiRC7030 `datapoint`). */
+const OID_RE = /^\/(\d+)\/(\d+)\/(\d+)\/(\d+)\/(\d+)\/(\d+)$/;
 function isRecord(value) {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -71,15 +72,20 @@ function parseOid(oid) {
         return null;
     }
     return {
-        nodeId: Number(m[1]),
-        fctId: Number(m[2]),
-        lookupId: Number(m[3]),
-        memberId: Number(m[4]),
-        instance: Number(m[5]),
+        subnet: Number(m[1]),
+        nodeId: Number(m[2]),
+        fctId: Number(m[3]),
+        groupNr: Number(m[4]),
+        memberNr: Number(m[5]),
+        instance: Number(m[6]),
     };
 }
 function datapointKey(p) {
-    return `n${p.nodeId}.f${p.fctId}.l${p.lookupId}.m${p.memberId}.i${p.instance}`;
+    return `s${p.subnet}.n${p.nodeId}.f${p.fctId}.g${p.groupNr}.m${p.memberNr}.i${p.instance}`;
+}
+/** Controller display code, e.g. `03-051` (group 3, member 51). */
+function displayCode(p) {
+    return `${String(p.groupNr).padStart(2, '0')}-${String(p.memberNr).padStart(3, '0')}`;
 }
 function groupKey(nodeId, fctId, lookupId) {
     return `n${nodeId}.f${fctId}.l${lookupId}`;
@@ -91,14 +97,15 @@ function cleanValue(raw) {
         return null;
     }
     const trimmed = s.trim();
-    return trimmed === '' || trimmed === '-' ? null : trimmed;
+    return trimmed === '' || /^-+(\.-+)?$/.test(trimmed) ? null : trimmed; // '-', '--', '-.-' = no value
 }
 /**
  * Parse one datapoint entry. Returns null for items without a usable OID.
  *
- * @param item Raw JSON item from a lookup response
+ * @param item Raw JSON item from a lookup or datapoint response
+ * @param levelId Menu level the item was listed in, if any
  */
-function parseDatapoint(item) {
+function parseDatapoint(item, levelId = null) {
     if (!isRecord(item) || typeof item.OID !== 'string') {
         return null;
     }
@@ -113,7 +120,10 @@ function parseDatapoint(item) {
         ...parts,
         name: typeof item.name === 'string' ? item.name : '',
         value: cleanValue(item.value),
-        unit: typeof item.unit === 'string' && item.unit !== '' ? item.unit : null,
+        // Some unit fields hold only the numeric unit id (e.g. "20" = date, "21" = time): not a real unit.
+        unit: typeof item.unit === 'string' && item.unit.trim() !== '' && !/^\d+$/.test(item.unit.trim())
+            ? item.unit.trim()
+            : null,
         unitId: asInt(item.unitId),
         typeId: asInt(item.typeId),
         subtypeId: asInt(item.subtypeId),
@@ -123,8 +133,7 @@ function parseDatapoint(item) {
         enumValues: parseEnumField(item.enum),
         writeProtected: typeof writeProt === 'boolean' ? writeProt : null,
         timestamp: typeof item.timestamp === 'string' ? item.timestamp : null,
-        groupNr: asInt(item.groupNr),
-        memberNr: asInt(item.memberNr),
+        levelId,
     };
 }
 function parseLonVariable(item, nodeId, fctId, lookupId) {

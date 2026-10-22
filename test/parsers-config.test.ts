@@ -8,8 +8,16 @@ import { normalizeConfig } from '../src/utils/Validation';
 
 describe('parsers', () => {
     it('parses OIDs strictly', () => {
-        assert.deepEqual(parseOid('/1/15/0/3/50/0'), { nodeId: 15, fctId: 0, lookupId: 3, memberId: 50, instance: 0 });
-        for (const bad of ['', '/1/15/0/3/50', '/2/15/0/3/50/0', '/1/a/0/3/50/0', '../1/15/0/3/50/0']) {
+        assert.deepEqual(parseOid('/1/15/0/3/50/0'), {
+            subnet: 1,
+            nodeId: 15,
+            fctId: 0,
+            groupNr: 3,
+            memberNr: 50,
+            instance: 0,
+        });
+        assert.equal(parseOid('/2/97/0/1/2/0')?.subnet, 2);
+        for (const bad of ['', '/1/15/0/3/50', '/1/15/0/3/50/0/1', '/1/a/0/3/50/0', '../1/15/0/3/50/0']) {
             assert.equal(parseOid(bad), null, bad);
         }
     });

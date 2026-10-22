@@ -1,14 +1,21 @@
 /** One readable (and possibly writable) controller value, addressed by its native OID. */
 export interface Datapoint {
-    /** Stable identifier derived from the native OID, e.g. `n15.f0.l3.m50.i0`. Never derived from display names. */
+    /** Stable identifier derived from the native OID, e.g. `s1.n15.f0.g3.m50.i0`. Never derived from display names. */
     key: string;
-    /** Native OID exactly as reported by the controller, e.g. `/1/15/0/3/50/0`. */
+    /**
+     * Native OID exactly as reported, `/<subnet>/<node>/<function>/<group>/<member>/<instance>` (verified against the
+     * controller's own Swagger docs and a real MB6621). The menu level is NOT part of the OID.
+     */
     oid: string;
+    subnet: number;
     nodeId: number;
     fctId: number;
-    lookupId: number;
-    memberId: number;
+    /** Variable group/member: the controller's display code `GG-MMM` and the key into its text tables. */
+    groupNr: number;
+    memberNr: number;
     instance: number;
+    /** Menu level (lookup id) the datapoint was listed in; null when read directly. */
+    levelId: number | null;
     /** Native label. May be empty or duplicated; never use as identity. */
     name: string;
     /** Raw value string as sent by the controller (`null` when absent or a placeholder). */
@@ -24,11 +31,10 @@ export interface Datapoint {
     /** `true`/`false` as reported; `null` when the controller did not say (treated as not writable). */
     writeProtected: boolean | null;
     timestamp: string | null;
-    /** Variable identifier (group/member) used by the controller's text tables; -1 or null when absent. */
-    groupNr: number | null;
-    memberNr: number | null;
-    /** Readable name resolved from the controller's text tables (VarIdentTexte), if available. */
+    /** Readable name resolved from the controller's text tables (menu level + variable), if available. */
     label?: string;
+    /** Readable name of the menu level the datapoint was listed in. */
+    levelLabel?: string;
     /** Enum value -> readable text resolved from the controller's text tables (AufzaehlTexte). */
     enumTexts?: Record<string, string>;
 }
@@ -121,7 +127,7 @@ export function scanFingerprint(options: {
     };
 }
 
-export const CATALOG_SCHEMA_VERSION = 3;
+export const CATALOG_SCHEMA_VERSION = 4;
 
 export function moduleSignature(modules: Array<Pick<ModuleInfo, 'nodeId' | 'programId' | 'neuronId'>>): string {
     return modules

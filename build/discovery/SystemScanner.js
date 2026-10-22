@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DIRECT_GROUP_ID = void 0;
 exports.scanSystem = scanSystem;
 const errors_1 = require("../api/errors");
 const parsers_1 = require("../api/parsers");
@@ -86,6 +87,7 @@ async function scanSystem(api, options) {
             }
         }
     }
+    skipped += await addCachedDatapoints(api, modules, options, log);
     return {
         schemaVersion: Datapoint_1.CATALOG_SCHEMA_VERSION,
         discoveredAt: Date.now(),
@@ -95,4 +97,62 @@ async function scanSystem(api, options) {
         skipped,
         scanOptions: (0, Datapoint_1.scanFingerprint)(options),
     };
+}
+/** Lookup id of the synthetic group holding datapoints that are polled one by one (not listed in any menu). */
+exports.DIRECT_GROUP_ID = -1;
+/**
+ * Add datapoints that only the controller's cache knows (main-screen values such as actual room temperature,
+ * time programs) to their function, in a synthetic group polled per datapoint. Only for discovered, unlocked,
+ * non-excluded functions. Failure is not fatal: the cache endpoint is optional.
+ */
+async function addCachedDatapoints(api, modules, options, log) {
+    let cached;
+    try {
+        cached = await api.readCachedDatapoints();
+    }
+    catch (err) {
+        if (isFatal(err)) {
+            throw err;
+        }
+        log(`Datapoint cache not available: ${err.message}`);
+        return 0;
+    }
+    const known = new Set();
+    for (const m of modules) {
+        for (const f of m.functions) {
+            for (const g of f.lookups) {
+                g.datapoints.forEach(d => known.add(d.oid));
+            }
+        }
+    }
+    let added = 0;
+    for (const dp of cached) {
+        if (known.has(dp.oid) || options.excludedNodes.has(dp.nodeId)) {
+            continue;
+        }
+        const module = modules.find(m => m.nodeId === dp.nodeId && m.subnet === dp.subnet);
+        const fn = module?.functions.find(f => f.fctId === dp.fctId);
+        if (!module || !fn || fn.locked) {
+            continue;
+        }
+        let group = fn.lookups.find(g => g.lookupId === exports.DIRECT_GROUP_ID);
+        if (!group) {
+            group = {
+                nodeId: dp.nodeId,
+                fctId: dp.fctId,
+                lookupId: exports.DIRECT_GROUP_ID,
+                count: 0,
+                key: `n${dp.nodeId}.f${dp.fctId}.direct`,
+                datapoints: [],
+                lon: [],
+            };
+            fn.lookups.push(group);
+        }
+        group.datapoints.push({ ...dp, levelId: null });
+        group.count = group.datapoints.length;
+        known.add(dp.oid);
+        added++;
+    }
+    log(`Added ${added} datapoint(s) known only from the controller cache`);
+    return 0;
 }

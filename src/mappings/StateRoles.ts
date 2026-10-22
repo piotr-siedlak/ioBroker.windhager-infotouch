@@ -21,28 +21,34 @@ export interface StateShape {
  * @param writable Whether the resulting state will accept user writes
  */
 export function shapeFor(dp: Datapoint, writable: boolean): StateShape {
-    const numericValue = dp.value !== null && Number.isFinite(Number(dp.value));
+    // Structured objects (typeId 30): text such as versions (subtype 9) or JSON such as time programs.
+    if (dp.typeId === 30) {
+        return { type: 'string', role: dp.subtypeId === 9 ? 'text' : 'json' };
+    }
     const hasRange = dp.min !== null && dp.max !== null && dp.max > dp.min;
-    const isNumber = dp.enumValues !== null || dp.unit !== null || hasRange || numericValue;
-
+    // Dates/times (typeId 4, e.g. "22.10.2026", "14:54") are not numbers even though they have min/max strings.
+    const numericValue = dp.value === null ? null : Number.isFinite(Number(dp.value));
+    const isNumber =
+        numericValue === true ||
+        (numericValue === null &&
+            (dp.enumValues !== null || dp.enumTexts !== undefined || dp.unit !== null || hasRange));
     if (!isNumber) {
         return { type: 'string', role: 'text' };
     }
+    const states = enumStates(dp);
     const shape: StateShape = {
         type: 'number',
-        role: dp.enumValues ? (writable ? 'level' : 'value') : roleForUnit(dp.unit),
+        role: states ? (writable ? 'level' : 'value') : roleForUnit(dp.unit),
     };
-    if (dp.enumValues) {
-        // Controller text (AufzaehlTexte) when available, otherwise the raw code keeps the dropdown valid.
-        shape.states = Object.fromEntries(dp.enumValues.map(v => [String(v), dp.enumTexts?.[String(v)] ?? String(v)]));
-    } else {
-        if (hasRange) {
-            shape.min = dp.min as number;
-            shape.max = dp.max as number;
-        }
-        if (dp.step !== null && dp.step > 0) {
-            shape.step = dp.step;
-        }
+    if (states) {
+        shape.states = states;
+    }
+    if (hasRange) {
+        shape.min = dp.min as number;
+        shape.max = dp.max as number;
+    }
+    if (dp.step !== null && dp.step > 0 && !states) {
+        shape.step = dp.step;
     }
     if (dp.unit) {
         shape.unit = dp.unit;
@@ -52,6 +58,33 @@ export function shapeFor(dp: Datapoint, writable: boolean): StateShape {
         shape.role = shape.role.replace('value.', 'level.');
     }
     return shape;
+}
+
+/**
+ * Value -> text map. Controller texts (AufzaehlTexte) are used whenever they exist, also for integer
+ * datapoints without an explicit `enum` list (e.g. "Off / 0 to 10V / PWM"). Explicit enum codes without
+ * a text keep their numeric label so the dropdown stays complete.
+ *
+ * @param dp Datapoint
+ */
+export function enumStates(dp: Datapoint): Record<string, string> | undefined {
+    const texts = dp.enumTexts ?? {};
+    let codes: number[];
+    if (dp.enumValues) {
+        codes = dp.enumValues;
+    } else {
+        codes = Object.keys(texts)
+            .map(Number)
+            .filter(
+                v =>
+                    Number.isInteger(v) &&
+                    (dp.min === null || dp.max === null || dp.max <= dp.min || (v >= dp.min && v <= dp.max)),
+            );
+    }
+    if (codes.length === 0) {
+        return undefined;
+    }
+    return Object.fromEntries(codes.map(v => [String(v), texts[String(v)] ?? String(v)]));
 }
 
 /**

@@ -101,7 +101,7 @@ class InfoWinRestApi {
     }
     parseItems(items, nodeId, fctId, lookupId, into) {
         for (const item of items) {
-            const dp = (0, parsers_1.parseDatapoint)(item);
+            const dp = (0, parsers_1.parseDatapoint)(item, lookupId);
             if (dp) {
                 into.datapoints.push(dp);
                 continue;
@@ -154,13 +154,24 @@ class InfoWinRestApi {
         if (!(0, parsers_1.parseOid)(oid)) {
             throw (0, errors_1.validationError)(`Invalid OID: ${oid}`);
         }
-        for (const item of await this.lookupArray(oid)) {
+        // Swagger RestApiRC7030: GET /datapoint/{subnetId}/{nodeId}/{fctId}/{groupId}/{memberId}/{varInst}.
+        // (Not /lookup<OID>: the lookup tree is addressed by menu level, which is not part of the OID.)
+        const data = await this.http.getJson(`/api/1.0/datapoint${oid}`);
+        const items = Array.isArray(data) ? data : [data];
+        for (const item of items) {
             const dp = (0, parsers_1.parseDatapoint)(item);
             if (dp && dp.oid === oid) {
                 return dp;
             }
         }
         return null;
+    }
+    async readCachedDatapoints() {
+        const data = await this.http.getJson('/api/1.0/datapoints');
+        if (!Array.isArray(data)) {
+            throw (0, errors_1.malformedError)('Unexpected datapoints payload');
+        }
+        return data.map(item => (0, parsers_1.parseDatapoint)(item)).filter((dp) => dp !== null);
     }
     async readObject(oid) {
         if (!(0, parsers_1.parseOid)(oid)) {

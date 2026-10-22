@@ -42,7 +42,7 @@ const splitList = (value) => typeof value === 'string'
 function isValidHost(host) {
     return /^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$/.test(host) || /^[0-9a-fA-F:]+$/.test(host);
 }
-exports.OID_PATTERN = /^\/1\/\d+\/\d+\/\d+\/\d+\/\d+$/;
+exports.OID_PATTERN = /^\/\d+\/\d+\/\d+\/\d+\/\d+\/\d+$/;
 /**
  * Validate and normalise raw config. Never throws; collects human-readable problems instead.
  *

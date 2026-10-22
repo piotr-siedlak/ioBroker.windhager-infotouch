@@ -35,6 +35,8 @@ export interface Fixture {
     paged?: Record<string, Record<number, Json>>;
     /** Objects by full OID for /api/1.0/object. */
     objects?: Record<string, Json | number>;
+    /** Payload of GET /api/1.0/datapoints (controller cache). */
+    cache?: Json;
     /** Static resources by path, e.g. `/res/xml/VarIdentTexte_en.xml`. */
     resources?: Record<string, string | Buffer>;
 }
@@ -191,6 +193,12 @@ export class FakeController {
     private route(req: http.IncomingMessage, res: http.ServerResponse, body?: string): void {
         const url = new URL(req.url ?? '/', 'http://x');
         const path = url.pathname;
+        if (req.method === 'GET' && (path.startsWith('/api/1.0/lookup') || path.startsWith('/api/1.0/datapoint/'))) {
+            if (this.pending && --this.pending.reads < 0) {
+                this.values.set(this.pending.oid, this.pending.value);
+                this.pending = null;
+            }
+        }
         if (req.method === 'GET' && path.startsWith('/res/')) {
             const resource = this.fixture.resources?.[path];
             if (resource === undefined) {
@@ -201,15 +209,21 @@ export class FakeController {
             }
             return;
         }
+        if (req.method === 'GET' && path === '/api/1.0/datapoints') {
+            this.send(res, this.fixture.cache ? 200 : 404, JSON.stringify(this.fixture.cache ?? {}));
+            return;
+        }
+        if (req.method === 'GET' && path.startsWith('/api/1.0/datapoint/')) {
+            const found = this.findByOid(path.slice('/api/1.0/datapoint'.length));
+            const one = Array.isArray(found) ? found[0] : undefined;
+            this.send(res, one ? 200 : 404, JSON.stringify(one ? (this.applyValues([one]) as unknown[])[0] : {}));
+            return;
+        }
         if (req.method === 'GET' && path === '/api/1.0/info/deviceinfo') {
             this.send(res, 200, JSON.stringify(this.fixture.deviceinfo));
             return;
         }
         if (req.method === 'GET' && path.startsWith('/api/1.0/lookup')) {
-            if (this.pending && --this.pending.reads < 0) {
-                this.values.set(this.pending.oid, this.pending.value);
-                this.pending = null;
-            }
             const key = path.slice('/api/1.0/lookup'.length);
             const offset = url.searchParams.get('offset');
             const paged = this.fixture.paged?.[key];
@@ -261,7 +275,7 @@ export class FakeController {
     }
 
     private findByOid(oid: string): Json | undefined {
-        for (const payload of Object.values(this.fixture.lookups)) {
+        for (const payload of [...Object.values(this.fixture.lookups), this.fixture.cache ?? []]) {
             if (Array.isArray(payload)) {
                 const hit = payload.find(i => i && typeof i === 'object' && (i as Record<string, unknown>).OID === oid);
                 if (hit) {

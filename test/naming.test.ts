@@ -23,8 +23,8 @@ const LEVELS_EN = `<?xml version="1.0" encoding="UTF-8"?>
 <root><fcttyp id="14"><ebene id="3">Heating circuit &amp; room</ebene><ebene id="4">Time program</ebene></fcttyp>
 <fcttyp id="1"><ebene id="3">Boiler</ebene></fcttyp></root>`;
 const VARS_EN = `<?xml version="1.0" encoding="UTF-8"?>
-<root><gn id="0"><mn id="10">Boiler temperature actual</mn><mn id="11">Boiler temperature setpoint</mn></gn>
-<gn id="3"><mn id="20">Operating mode</mn><mn id="21">Room temperature setpoint</mn></gn></root>`;
+<root><gn id="3"><mn id="10">Boiler temperature actual</mn><mn id="11">Boiler temperature setpoint</mn>
+<mn id="20">Operating mode</mn><mn id="21">Room temperature setpoint</mn></gn></root>`;
 const ENUMS_EN = `<?xml version="1.0" encoding="UTF-8"?>
 <root><gn id="3"><mn id="20"><enum id="0">Standby</enum><enum id="1">Automatic</enum><enum id="2">Comfort</enum><enum id="3">Reduced</enum></mn></gn></root>`;
 // German table encoded as ISO-8859-1 to prove charset handling.
@@ -104,14 +104,14 @@ describe('name resolution against the fake controller', () => {
         applyLabels(catalog, texts);
         const idx = indexCatalog(catalog);
         const sp = idx.byOid.get(OID.hc1RoomSetpoint)!;
-        assert.equal(sp.label, 'Room temperature setpoint');
-        assert.equal(sp.key, 'n16.f0.l3.m21.i0', 'identity unchanged');
+        assert.equal(sp.label, 'Heating circuit & room: Room temperature setpoint');
+        assert.equal(sp.key, 's1.n16.f0.g3.m21.i0', 'identity is OID-based');
         const mode = idx.byOid.get(OID.hc1Mode)!;
         assert.equal(shapeFor(mode, false).states!['2'], 'Comfort');
         assert.equal(idx.groups.get('n16.f0.l3')!.label, 'Heating circuit & room');
         assert.equal(idx.groups.get('n15.f0.l3')!.label, 'Boiler');
-        // No table entry and no meaningful API name -> no label (registry falls back to the OID).
-        assert.equal(idx.byOid.get(OID.noMetadata)!.label, undefined);
+        // No variable text: level name plus the controller code keeps it unique.
+        assert.equal(idx.byOid.get(OID.noMetadata)!.label, 'Heating circuit & room (03-025)');
         assert.ok(
             fake.requests.every(r => r.method === 'GET'),
             'text loading is read-only',
