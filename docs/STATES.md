@@ -37,7 +37,7 @@ Optional trees: `raw.<key>` (strings), `lon.node_..nv_<i>` (raw strings with `na
 
 ## Using the data
 
-- **Scripts**: subscribe to `windhager.0.modules.*` with the usual selector, or look up by `native.oid`.
+- **Scripts**: subscribe to `windhager-infotouch.0.modules.*` with the usual selector, or look up by `native.oid`.
 - **InfluxDB / history**: enable history on the numeric states you need; the original units are preserved.
 - **MQTT**: any MQTT adapter can publish the `modules.*` tree; the adapter itself runs no broker.
 - **Grafana**: query the Influx measurement by state id; use `common.name` / `native.oid` to label panels.

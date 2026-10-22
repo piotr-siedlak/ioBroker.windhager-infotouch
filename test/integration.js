@@ -10,7 +10,7 @@ tests.integration(path.join(__dirname, '..'), {
                 this.timeout(60000);
                 const harness = getHarness();
                 await harness.startAdapterAndWait();
-                const state = await harness.states.getStateAsync('windhager.0.info.connection');
+                const state = await harness.states.getStateAsync('windhager-infotouch.0.info.connection');
                 if (state && state.val !== false) {
                     throw new Error('info.connection should be false without a configured host');
                 }

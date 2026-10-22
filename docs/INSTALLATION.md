@@ -17,21 +17,21 @@ The ioBroker host needs an SSH key with read access to the repository.
 ```bash
 cd /opt/iobroker
 npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager-infotouch.git
-iobroker upload windhager
-iobroker add windhager
+iobroker upload windhager-infotouch
+iobroker add windhager-infotouch
 ```
 
 The compiled `build/` folder is committed, so no build step is needed on the ioBroker host.
 
-**Installing via Admin (custom URL / GitHub) or `iobroker url`:** ioBroker derives the adapter name from the
-repository name. While the repository is called `ioBroker.windhager-infotouch` but the adapter is `windhager`, pass
-the name explicitly, otherwise the install fails with `Cannot install ...: 0` (exit code 25):
+Alternatively install from Admin ("Install from custom URL", GitHub tab) or the CLI; the adapter name
+`windhager-infotouch` matches the repository name `ioBroker.windhager-infotouch`, which ioBroker requires:
 
 ```bash
-iobroker url https://github.com/piotr-siedlak/ioBroker.windhager-infotouch windhager
+iobroker url https://github.com/piotr-siedlak/ioBroker.windhager-infotouch
 ```
 
-Renaming the repository to `ioBroker.windhager` removes the need for the extra argument.
+If an earlier attempt failed with `Cannot install ...: 0` (versions <= 0.1.1 were packaged as `iobroker.windhager`),
+remove the leftover package first: `cd /opt/iobroker && npm uninstall iobroker.windhager`.
 
 ## First run
 
@@ -43,4 +43,4 @@ Renaming the repository to `ioBroker.windhager` removes the need for the extra a
 
 ## Uninstall
 
-`iobroker del windhager` removes instances. Objects can be deleted from the Objects tab; nothing is stored on the controller.
+`iobroker del windhager-infotouch` removes instances. Objects can be deleted from the Objects tab; nothing is stored on the controller.

@@ -1,4 +1,4 @@
-# ioBroker.windhager
+# ioBroker.windhager-infotouch
 
 Lokalny adapter ioBroker dla sterowników **Windhager InfoWIN Touch / MES INFINITY**, który sam wykrywa
 możliwości sterownika.
@@ -17,7 +17,7 @@ możliwości sterownika.
 ## Struktura obiektów
 
 ```
-windhager.0
+windhager-infotouch.0
   info.*                         połączenie, model, wersja, ostatni odczyt, ostatni błąd
   modules.node_<n>.fn_<f>.grp_<l>.dp_<member>_<instance>
   lon.*   schedules.*   raw.*    opcjonalne, tylko odczyt
@@ -32,8 +32,8 @@ Identyfikatory powstają z numerycznych OID sterownika, nigdy z nazw wyświetlan
 ```bash
 cd /opt/iobroker
 npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager-infotouch.git
-iobroker upload windhager
-iobroker add windhager
+iobroker upload windhager-infotouch
+iobroker add windhager-infotouch
 ```
 
 ## Bezpieczeństwo zapisu

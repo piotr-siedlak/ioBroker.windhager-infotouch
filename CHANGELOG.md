@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 (unreleased)
+
+- **Breaking:** adapter renamed from `windhager` to `windhager-infotouch` (package `iobroker.windhager-infotouch`,
+  objects `windhager-infotouch.0.*`) to match the repository name. Installing from GitHub failed with
+  `Cannot install ...: 0` because ioBroker derives the adapter name from the repository name.
+- The compiled `build/` folder is committed so GitHub installs work without a build step.
+
 ## 0.1.1 (unreleased) - review fixes
 
 - Fix: an empty poll category (default: no fast groups) reset the failure counter, so an outage was never reported.

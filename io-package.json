@@ -1,8 +1,13 @@
 {
     "common": {
-        "name": "windhager",
-        "version": "0.1.1",
+        "name": "windhager-infotouch",
+        "version": "0.1.2",
         "news": {
+            "0.1.2": {
+                "en": "Adapter renamed to windhager-infotouch to match the repository; installs from GitHub work",
+                "pl": "Adapter przemianowany na windhager-infotouch zgodnie z nazwą repozytorium; instalacja z GitHub działa",
+                "de": "Adapter in windhager-infotouch umbenannt (passend zum Repository); Installation von GitHub funktioniert"
+            },
             "0.1.1": {
                 "en": "Review fixes: offline detection, per-group error isolation, defensive paging, cache invalidation, export masking",
                 "pl": "Poprawki po przeglądzie: wykrywanie braku połączenia, izolacja błędów grup, bezpieczne stronicowanie, unieważnianie cache, maskowanie eksportu",
@@ -25,25 +30,16 @@
             "pl": "Lokalna integracja sterowników grzewczych Windhager InfoWIN Touch / MES INFINITY (domyślnie tylko odczyt)",
             "de": "Lokale Integration von Windhager InfoWIN Touch / MES INFINITY Heizungsreglern (standardmäßig nur lesend)"
         },
-        "authors": [
-            "piotr-siedlak <siedlak.piotr@gmail.com>"
-        ],
-        "keywords": [
-            "windhager",
-            "infowin",
-            "heating",
-            "boiler",
-            "gas",
-            "pellet"
-        ],
+        "authors": ["piotr-siedlak <siedlak.piotr@gmail.com>"],
+        "keywords": ["windhager", "infowin", "heating", "boiler", "gas", "pellet"],
         "licenseInformation": {
             "license": "MIT",
             "type": "free"
         },
         "platform": "Javascript/Node.js",
-        "icon": "windhager.svg",
+        "icon": "windhager-infotouch.svg",
         "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/piotr-siedlak/ioBroker.windhager-infotouch/main/admin/windhager.svg",
+        "extIcon": "https://raw.githubusercontent.com/piotr-siedlak/ioBroker.windhager-infotouch/main/admin/windhager-infotouch.svg",
         "readme": "https://github.com/piotr-siedlak/ioBroker.windhager-infotouch/blob/main/README.md",
         "loglevel": "info",
         "tier": 3,
@@ -95,12 +91,8 @@
         "writeAllowlist": "",
         "verifyWrites": true
     },
-    "encryptedNative": [
-        "password"
-    ],
-    "protectedNative": [
-        "password"
-    ],
+    "encryptedNative": ["password"],
+    "protectedNative": ["password"],
     "objects": [],
     "instanceObjects": [
         {

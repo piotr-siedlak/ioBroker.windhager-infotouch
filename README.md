@@ -1,4 +1,4 @@
-# ioBroker.windhager
+# ioBroker.windhager-infotouch
 
 Local, capability-driven ioBroker adapter for **Windhager InfoWIN Touch / MES INFINITY** heating controllers.
 
@@ -15,7 +15,7 @@ Local, capability-driven ioBroker adapter for **Windhager InfoWIN Touch / MES IN
 ## What you get
 
 ```
-windhager.0
+windhager-infotouch.0
   info.{connection, controllerModel, firmwareVersion, protocolVersion, lastSuccessfulPoll, lastError}
   modules.node_<n>.fn_<f>.grp_<l>.dp_<member>_<instance>     one state per discovered datapoint
   lon.node_<n>...nv_<i>                                      optional, raw, read-only
@@ -33,8 +33,8 @@ enum codes are kept on the objects. See [docs/STATES.md](docs/STATES.md). Friend
 ```bash
 cd /opt/iobroker
 npm install git+ssh://git@github.com/piotr-siedlak/ioBroker.windhager-infotouch.git
-iobroker upload windhager
-iobroker add windhager
+iobroker upload windhager-infotouch
+iobroker add windhager-infotouch
 ```
 
 Details: [docs/INSTALLATION.md](docs/INSTALLATION.md), settings: [docs/CONFIGURATION.md](docs/CONFIGURATION.md).

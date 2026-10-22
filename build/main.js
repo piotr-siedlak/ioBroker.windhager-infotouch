@@ -68,7 +68,7 @@ class WindhagerAdapter extends utils.Adapter {
     unloading = false;
     busy = false;
     constructor(options = {}) {
-        super({ ...options, name: 'windhager' });
+        super({ ...options, name: 'windhager-infotouch' });
         this.on('ready', () => void this.onReady());
         this.on('stateChange', (id, state) => void this.onStateChange(id, state));
         this.on('message', obj => void this.onMessage(obj));

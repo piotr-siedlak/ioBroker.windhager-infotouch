@@ -8,7 +8,7 @@ against real hardware. Start with `RESEARCH.md` (evidence levels), then the code
 1. **Scaffold was hand-built**, not generated: `@iobroker/create-adapter@3.1.5` failed because a registry request
    (`/-/package/.../dist-tags`) timed out from the sandbox. Compare against the official template for anything missing
    (e.g. `.vscode`, `admin/` tsconfig, `release-script`, `.github` auto-merge, `test/mocha.setup`).
-2. **Repo name is `ioBroker.windhager-infotouch`**, not `ioBroker.windhager` (the ioBroker checker expects `ioBroker.<adapter name>`; decide whether to rename the repo).
+2. Adapter renamed to `windhager-infotouch` (0.1.2) so it matches the required repository name `ioBroker.windhager-infotouch`.
 3. `@iobroker/repochecker` was **not run** (needs a reachable public repo). Run it once the repo exists.
 4. Semantic namespaces from the brief (`boilers.*`, `heatingCircuits.*`, `buffers.*`, `dhw.*`, `system.*`) are **not**
    implemented on purpose (no verified `fctType` meaning for gas). Decide if that is acceptable for a first beta.
@@ -84,6 +84,6 @@ suites), then fixed. Suite: 65 -> 73 tests, all passing.
 3. Stale datapoints get `val: null` (history keeps old values); keeping the last value would need an extra read per object.
 4. `extendObject` runs for every object on each start; DB churn and duration on large systems are unmeasured.
 5. Admin `jsonData` still templates host/username; both are validated, but a `"` in the user name would break the test button.
-6. `@iobroker/repochecker` not run; repo name `ioBroker.windhager-infotouch` differs from the convention `ioBroker.windhager`.
+6. `@iobroker/repochecker` not run.
 7. `node-forge` advisory via `@iobroker/adapter-core` (see SECURITY.md).
 8. Paging (P7), single-OID read (P9) and the whole write path remain unverified on hardware.
