@@ -45,6 +45,16 @@ describe('HttpClient', () => {
         c.close();
     });
 
+    it('enforces a total deadline against slow-drip responses', async () => {
+        const c = makeClient(fake, { timeoutMs: 300, retries: 0 });
+        await c.getJson('/api/1.0/info/deviceinfo'); // authenticate first
+        fake.behaviour.dripMs = 100; // each byte arrives well inside the idle timeout
+        const started = Date.now();
+        assert.equal(await kind(c.getJson('/api/1.0/lookup/1')), 'timeout');
+        assert.ok(Date.now() - started < 1500);
+        c.close();
+    });
+
     it('retries GET on 5xx and succeeds', async () => {
         fake.behaviour.failFirst = 2;
         const c = makeClient(fake);

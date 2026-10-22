@@ -18,6 +18,8 @@ export interface PollingCallbacks {
     /** Authentication failed: polling stops to avoid lock-outs; user must fix credentials. */
     onAuthFailure(err: Error): void;
     onCycle?(category: PollCategory, durationMs: number, ok: boolean): void;
+    /** A single group failed with a non-fatal error and was skipped in this cycle. */
+    onGroupError?(group: LookupGroup, err: Error): void;
 }
 
 export interface PollingOptions {
@@ -41,6 +43,7 @@ export class PollingService {
     private running = false;
     private consecutiveFailures = 0;
     private online = false;
+    private readonly inFlight = new Set<PollCategory>();
     private readonly options: PollingOptions;
 
     public constructor(
@@ -63,7 +66,8 @@ export class PollingService {
         this.running = true;
         for (const category of ['fast', 'normal', 'slow'] as const) {
             const seconds = this.options.intervals[category];
-            if (seconds && seconds > 0) {
+            // A category without targets is never scheduled: an empty cycle proves nothing about the controller.
+            if (seconds && seconds > 0 && this.hasTargets(category)) {
                 // Stagger first runs slightly so categories do not hit the controller at the same instant.
                 this.schedule(category, category === 'fast' ? 0 : category === 'normal' ? 1500 : 4000);
             }
@@ -78,8 +82,18 @@ export class PollingService {
         this.timers.clear();
     }
 
+    private hasTargets(category: PollCategory): boolean {
+        return this.targets.some(t => t.category === category);
+    }
+
     private schedule(category: PollCategory, delayMs: number): void {
-        if (!this.running) {
+        // Replace, never add: one chain per category even if runCycle() is also called directly.
+        const existing = this.timers.get(category);
+        if (existing) {
+            clearTimeout(existing);
+            this.timers.delete(category);
+        }
+        if (!this.running || !(this.options.intervals[category] ?? 0)) {
             return;
         }
         this.timers.set(
@@ -88,30 +102,63 @@ export class PollingService {
         );
     }
 
-    /** Run one category now (also used by tests and for an immediate refresh after a write). */
+    /**
+     * Run one category now. Concurrent calls for the same category are coalesced.
+     *
+     * Groups failing with a non-fatal error (HTTP status, malformed payload) are skipped so that one bad group
+     * cannot make the controller look offline. Connectivity errors abort the cycle and count as a failure.
+     * A cycle in which every group failed also counts as a failure.
+     *
+     * @param category Category to poll
+     * @returns true if the cycle reached the controller successfully
+     */
     public async runCycle(category: PollCategory): Promise<boolean> {
+        if (this.inFlight.has(category)) {
+            return false;
+        }
+        const targets = this.targets.filter(t => t.category === category);
+        if (targets.length === 0) {
+            return false;
+        }
+        this.inFlight.add(category);
         const started = Date.now();
         let ok = true;
         try {
-            for (const target of this.targets.filter(t => t.category === category)) {
+            let succeeded = 0;
+            let lastError: Error | null = null;
+            for (const target of targets) {
                 if (!this.running) {
                     return false;
                 }
-                const result = await this.api.readGroup(
-                    target.group.nodeId,
-                    target.group.fctId,
-                    target.group.lookupId,
-                    target.group.count,
-                );
-                await this.callbacks.onGroup(target.group, result);
-                if (this.options.includeLon && category === 'slow' && target.group.lon.length > 0) {
-                    await this.pollLon(target.group);
+                try {
+                    const result = await this.api.readGroup(
+                        target.group.nodeId,
+                        target.group.fctId,
+                        target.group.lookupId,
+                        target.group.count,
+                    );
+                    await this.callbacks.onGroup(target.group, result);
+                    if (this.options.includeLon && category === 'slow' && target.group.lon.length > 0) {
+                        await this.pollLon(target.group);
+                    }
+                    succeeded++;
+                } catch (err) {
+                    if (isFatal(err)) {
+                        throw err;
+                    }
+                    lastError = err instanceof Error ? err : new Error(String(err));
+                    this.callbacks.onGroupError?.(target.group, lastError);
                 }
+            }
+            if (succeeded === 0 && lastError) {
+                throw lastError;
             }
             this.recordSuccess();
         } catch (err) {
             ok = false;
             this.recordFailure(err instanceof Error ? err : new Error(String(err)));
+        } finally {
+            this.inFlight.delete(category);
         }
         this.callbacks.onCycle?.(category, Date.now() - started, ok);
 
@@ -127,9 +174,16 @@ export class PollingService {
             if (!this.running) {
                 return;
             }
-            const fresh = await this.api.readLonValue(nv.nodeId, nv.fctId, nv.lookupId, nv.index);
-            if (fresh) {
-                values.push(fresh);
+            try {
+                const fresh = await this.api.readLonValue(nv.nodeId, nv.fctId, nv.lookupId, nv.index);
+                if (fresh) {
+                    values.push(fresh);
+                }
+            } catch (err) {
+                if (isFatal(err)) {
+                    throw err;
+                }
+                // One unreadable variable must not drop the others.
             }
         }
         await this.callbacks.onLon(group, values);
@@ -151,11 +205,15 @@ export class PollingService {
             return;
         }
         this.consecutiveFailures++;
-        if (this.online && this.consecutiveFailures >= this.options.offlineThreshold) {
+        if (this.consecutiveFailures === this.options.offlineThreshold) {
             this.online = false;
-            this.callbacks.onOffline(err);
-        } else if (!this.online && this.consecutiveFailures === this.options.offlineThreshold) {
             this.callbacks.onOffline(err);
         }
     }
+}
+
+function isFatal(err: unknown): boolean {
+    return (
+        err instanceof WindhagerError && (err.kind === 'auth' || err.kind === 'connection' || err.kind === 'timeout')
+    );
 }

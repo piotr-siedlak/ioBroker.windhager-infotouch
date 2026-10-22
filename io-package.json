@@ -1,8 +1,13 @@
 {
     "common": {
         "name": "windhager",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "news": {
+            "0.1.1": {
+                "en": "Review fixes: offline detection, per-group error isolation, defensive paging, cache invalidation, export masking",
+                "pl": "Poprawki po przeglądzie: wykrywanie braku połączenia, izolacja błędów grup, bezpieczne stronicowanie, unieważnianie cache, maskowanie eksportu",
+                "de": "Review-Korrekturen: Offline-Erkennung, Fehlerisolierung pro Gruppe, defensives Paging, Cache-Invalidierung, Maskierung im Export"
+            },
             "0.1.0": {
                 "en": "Initial beta: read-only discovery and polling, opt-in verified writes",
                 "pl": "Pierwsza wersja beta: odczyt, wykrywanie i odpytywanie; zapis tylko po jawnym włączeniu",
@@ -20,8 +25,17 @@
             "pl": "Lokalna integracja sterowników grzewczych Windhager InfoWIN Touch / MES INFINITY (domyślnie tylko odczyt)",
             "de": "Lokale Integration von Windhager InfoWIN Touch / MES INFINITY Heizungsreglern (standardmäßig nur lesend)"
         },
-        "authors": ["piotr-siedlak <siedlak.piotr@gmail.com>"],
-        "keywords": ["windhager", "infowin", "heating", "boiler", "gas", "pellet"],
+        "authors": [
+            "piotr-siedlak <siedlak.piotr@gmail.com>"
+        ],
+        "keywords": [
+            "windhager",
+            "infowin",
+            "heating",
+            "boiler",
+            "gas",
+            "pellet"
+        ],
         "licenseInformation": {
             "license": "MIT",
             "type": "free"
@@ -81,8 +95,12 @@
         "writeAllowlist": "",
         "verifyWrites": true
     },
-    "encryptedNative": ["password"],
-    "protectedNative": ["password"],
+    "encryptedNative": [
+        "password"
+    ],
+    "protectedNative": [
+        "password"
+    ],
     "objects": [],
     "instanceObjects": [
         {

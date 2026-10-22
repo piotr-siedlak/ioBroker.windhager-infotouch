@@ -6,11 +6,24 @@ import type {
     ModuleListItem,
     WritableControllerApi,
 } from './ControllerApi';
-import { malformedError, validationError } from './errors';
+import { malformedError, validationError, WindhagerError } from './errors';
 import type { HttpClient } from './HttpClient';
 import { asInt, isRecord, parseDatapoint, parseLonVariable, parseOid } from './parsers';
 
 const PAGE_SIZE = 10;
+
+/** Identity of a raw lookup item for de-duplication across pages. */
+function itemKey(item: unknown): string {
+    if (isRecord(item)) {
+        if (typeof item.OID === 'string') {
+            return `oid:${item.OID}`;
+        }
+        if (item.nvIndex !== undefined) {
+            return `nv:${JSON.stringify(item.nvIndex)}`;
+        }
+    }
+    return `raw:${JSON.stringify(item)}`;
+}
 const MAX_PAGES = 50;
 
 /**
@@ -129,18 +142,30 @@ export class InfoWinRestApi implements WritableControllerApi {
         this.parseItems(first, nodeId, fctId, lookupId, result);
 
         // The controller returns up to ten entries per request. Page only when fewer than announced arrived.
-        // Paging via ?count/&offset is only fixture-tested (see RESEARCH.md); a page with no new entries stops it.
+        // Paging via ?count/&offset is only fixture-tested (see RESEARCH.md P7), so it is defensive:
+        // - every item kind is deduplicated, in case the controller ignores the offset;
+        // - a failing page keeps what was already read (connectivity errors still propagate).
+        const seen = new Set(first.map(itemKey));
         let received = first.length;
         for (let page = 0; page < MAX_PAGES && received > 0 && received < announcedCount; page++) {
-            const items = await this.lookupArray(base, { count: PAGE_SIZE, offset: received });
-            const known = new Set(result.datapoints.map(d => d.key));
-            const fresh = items.filter(i => {
-                const dp = parseDatapoint(i);
-                return !dp || !known.has(dp.key);
-            });
+            let items: unknown[];
+            try {
+                items = await this.lookupArray(base, { count: PAGE_SIZE, offset: received });
+            } catch (err) {
+                if (
+                    err instanceof WindhagerError &&
+                    (err.kind === 'auth' || err.kind === 'connection' || err.kind === 'timeout')
+                ) {
+                    throw err;
+                }
+                result.incomplete = true;
+                break;
+            }
+            const fresh = items.filter(i => !seen.has(itemKey(i)));
             if (fresh.length === 0) {
                 break;
             }
+            fresh.forEach(i => seen.add(itemKey(i)));
             this.parseItems(fresh, nodeId, fctId, lookupId, result);
             received += fresh.length;
         }

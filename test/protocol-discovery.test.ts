@@ -147,7 +147,7 @@ describe('discovery', () => {
 
     it('validates the cache against modules, firmware and age', async () => {
         const cat = await scan();
-        const current = { modules: cat.modules, version: '1.0.2' };
+        const current = { modules: cat.modules, version: '1.0.2', scanOptions: cat.scanOptions };
         assert.equal(isCacheValid(cat, current, 1e9), true);
         assert.equal(isCacheValid(cat, { ...current, version: '2.0' }, 1e9), false, 'firmware changed');
         assert.equal(
@@ -157,6 +157,16 @@ describe('discovery', () => {
         );
         assert.equal(isCacheValid(cat, current, 1000, cat.discoveredAt + 5000), false, 'expired');
         assert.equal(isCacheValid(null, current, 1e9), false);
+        assert.equal(
+            isCacheValid(cat, { ...current, scanOptions: { ...current.scanOptions, includeLon: false } }, 1e9),
+            false,
+            'LON option changed',
+        );
+        assert.equal(
+            isCacheValid(cat, { ...current, scanOptions: { ...current.scanOptions, excludedNodes: [17] } }, 1e9),
+            false,
+            'exclusions changed',
+        );
     });
 
     it('reads schedules verbatim and read-only', async () => {

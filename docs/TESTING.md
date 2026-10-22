@@ -4,7 +4,7 @@
 
 ```bash
 npm run typecheck && npm run lint
-npm test                 # node:test via tsx - 65 tests against a fake controller
+npm test                 # node:test via tsx - 73 tests against a fake controller
 npm run test:package     # @iobroker/testing package-file checks (downloads JSON schemas)
 npm run build && npm run test:integration   # starts the adapter in a real js-controller
 ```

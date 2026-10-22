@@ -40,6 +40,7 @@
     "Transport": "Transport",
     "Unconverted controller strings, read-only": "Niekonwertowane ciągi ze sterownika, tylko odczyt",
     "User name": "Nazwa użytkownika",
+    "Uses the saved password - save first if you changed it": "Używa zapisanego hasła – najpierw zapisz, jeśli je zmieniłeś",
     "Verify TLS certificate": "Weryfikuj certyfikat TLS",
     "Verify by reading back after write": "Weryfikuj odczytem zwrotnym po zapisie",
     "Write allow-list (OIDs)": "Lista dozwolonych do zapisu (OID)"

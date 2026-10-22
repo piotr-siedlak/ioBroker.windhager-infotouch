@@ -26,6 +26,10 @@ export interface CommandOptions {
     findDatapoint(oid: string): Datapoint | undefined;
     /** Sanitised audit trail; never receives credentials. */
     audit(event: { oid: string; name: string; requested: unknown; outcome: string }): void;
+    /** Read-back attempts before reporting a mismatch (default 3). */
+    readbackAttempts?: number;
+    /** Delay between read-back attempts (default 1000 ms). */
+    readbackDelayMs?: number;
 }
 
 const EPSILON = 1e-6;
@@ -79,6 +83,8 @@ export function validateValue(
  */
 export class CommandService {
     private queue: Promise<unknown> = Promise.resolve();
+    /** Injectable for tests. */
+    public sleep: (ms: number) => Promise<void> = ms => new Promise(resolve => setTimeout(resolve, ms));
 
     public constructor(
         private readonly api: WritableControllerApi,
@@ -148,17 +154,34 @@ export class CommandService {
             return { ok: true, value: check.value, verified: false };
         }
 
-        let after: Datapoint | null;
-        try {
-            after = await this.api.readDatapoint(oid);
-        } catch {
+        // The controller may apply a value with a short delay, so read back a few times before giving up.
+        const tolerance = Math.max(EPSILON, (dp.step ?? 0) / 2);
+        const attempts = Math.max(1, options.readbackAttempts ?? 3);
+        let deviceValue: number | null = null;
+        let readFailed = false;
+        for (let attempt = 0; attempt < attempts; attempt++) {
+            if (attempt > 0) {
+                await this.sleep(options.readbackDelayMs ?? 1000);
+            }
+            try {
+                const after = await this.api.readDatapoint(oid);
+                const n = after?.value !== null && after?.value !== undefined ? Number(after.value) : NaN;
+                deviceValue = Number.isFinite(n) ? n : null;
+                readFailed = false;
+            } catch {
+                readFailed = true;
+                continue;
+            }
+            if (deviceValue !== null && Math.abs(deviceValue - check.value) <= tolerance) {
+                break;
+            }
+        }
+        if (readFailed) {
             return this.fail(dp, oid, requested, 'unverified', 'Value was sent but could not be read back');
         }
-        const deviceValue = after?.value !== null && after?.value !== undefined ? Number(after.value) : null;
-        if (deviceValue === null || !Number.isFinite(deviceValue)) {
+        if (deviceValue === null) {
             return this.fail(dp, oid, requested, 'unverified', 'Controller returned no value on read-back');
         }
-        const tolerance = Math.max(EPSILON, (dp.step ?? 0) / 2);
         if (Math.abs(deviceValue - check.value) > tolerance) {
             return this.fail(
                 dp,

@@ -86,7 +86,7 @@ export class DiagnosticsService {
      * @param catalog Current catalog, if any
      */
     public exportAnonymized(host: string, catalog: Catalog | null): Record<string, unknown> {
-        return {
+        const data = {
             generatedAt: new Date().toISOString(),
             host: maskHost(host),
             stats: this.snapshot(),
@@ -113,5 +113,8 @@ export class DiagnosticsService {
                   }
                 : null,
         };
+        // Error texts from Node (e.g. "connect ECONNREFUSED 192.168.1.5:80") embed the address: mask every occurrence.
+        const text = host ? JSON.stringify(data).split(host).join(maskHost(host)) : JSON.stringify(data);
+        return JSON.parse(text) as Record<string, unknown>;
     }
 }

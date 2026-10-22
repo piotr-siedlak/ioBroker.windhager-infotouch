@@ -40,6 +40,7 @@
     "Transport": "Transport",
     "Unconverted controller strings, read-only": "Unkonvertierte Reglerstrings, nur lesend",
     "User name": "Benutzername",
+    "Uses the saved password - save first if you changed it": "Verwendet das gespeicherte Passwort – nach einer Änderung zuerst speichern",
     "Verify TLS certificate": "TLS-Zertifikat prüfen",
     "Verify by reading back after write": "Nach dem Schreiben durch Rücklesen prüfen",
     "Write allow-list (OIDs)": "Freigabeliste zum Schreiben (OIDs)"

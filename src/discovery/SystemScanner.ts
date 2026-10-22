@@ -4,6 +4,7 @@ import { groupKey } from '../api/parsers';
 import {
     CATALOG_SCHEMA_VERSION,
     moduleSignature,
+    scanFingerprint,
     type Catalog,
     type FunctionInfo,
     type ModuleInfo,
@@ -108,5 +109,6 @@ export async function scanSystem(api: ControllerApi, options: ScanOptions): Prom
         signature: moduleSignature(modules),
         modules,
         skipped,
+        scanOptions: scanFingerprint(options),
     };
 }

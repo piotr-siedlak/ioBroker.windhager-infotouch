@@ -174,6 +174,7 @@ describe('CommandService', () => {
             isConnected: () => true,
             findDatapoint: oid => idx.byOid.get(oid),
             audit: e => audits.push(`${e.oid}:${e.outcome}`),
+            readbackDelayMs: 1,
             ...over,
         });
     };
@@ -234,6 +235,21 @@ describe('CommandService', () => {
         assert.equal(r.ok, false);
         assert.equal(!r.ok && r.code, 'mismatch');
         assert.equal(!r.ok && r.deviceValue, 21);
+    });
+
+    it('confirms a value the controller applies with a delay', async () => {
+        fake.behaviour.applyAfterReads = 1;
+        const r = await service().write(OID.hc1RoomSetpoint, 23);
+        assert.deepEqual(r, { ok: true, value: 23, verified: true });
+    });
+
+    it('reports mismatch only after all read-back attempts', async () => {
+        fake.behaviour.ignoreWrites = true;
+        await service({ readbackAttempts: 3 }).write(OID.hc1RoomSetpoint, 25);
+        const singleReads = fake.requests.filter(
+            x => x.method === 'GET' && x.url === `/api/1.0/lookup${OID.hc1RoomSetpoint}`,
+        );
+        assert.equal(singleReads.filter(x => x.authorized).length, 3);
     });
 
     it('serialises concurrent writes in submission order', async () => {

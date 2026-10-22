@@ -86,11 +86,12 @@
                     "label": "Test connection",
                     "command": "testConnection",
                     "newLine": true,
-                    "jsonData": "{\"host\":\"${data.host}\",\"protocol\":\"${data.protocol}\",\"port\":${data.port},\"username\":\"${data.username}\",\"password\":\"${data.password}\",\"verifyTls\":${data.verifyTls},\"timeoutMs\":${data.timeoutMs}}",
+                    "jsonData": "{\"host\":\"${data.host}\",\"protocol\":\"${data.protocol}\",\"port\":${data.port},\"username\":\"${data.username}\",\"verifyTls\":${data.verifyTls},\"timeoutMs\":${data.timeoutMs}}",
                     "useNative": false,
                     "variant": "outlined",
                     "xs": 12,
-                    "sm": 4
+                    "sm": 4,
+                    "help": "Uses the saved password - save first if you changed it"
                 }
             }
         },

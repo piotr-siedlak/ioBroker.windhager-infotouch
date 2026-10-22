@@ -4,6 +4,7 @@ import {
     type Catalog,
     type Datapoint,
     type LookupGroup,
+    type ScanFingerprint,
 } from '../models/Datapoint';
 
 export type PollCategory = 'fast' | 'normal' | 'slow';
@@ -64,12 +65,17 @@ export function categorize(group: LookupGroup, fastGroups: ReadonlySet<string>):
  * @param current Module identities and firmware version currently reported by the controller
  * @param current.modules Modules currently listed by the controller
  * @param current.version Firmware/API version currently reported
+ * @param current.scanOptions Discovery options of the running configuration
  * @param maxAgeMs Maximum cache age
  * @param now Current time
  */
 export function isCacheValid(
     cached: Catalog | null,
-    current: { modules: Array<{ nodeId: number; programId: string; neuronId: string }>; version: string | null },
+    current: {
+        modules: Array<{ nodeId: number; programId: string; neuronId: string }>;
+        version: string | null;
+        scanOptions: ScanFingerprint;
+    },
     maxAgeMs: number,
     now = Date.now(),
 ): boolean {
@@ -80,6 +86,9 @@ export function isCacheValid(
         return false;
     }
     if (cached.controller.version !== current.version) {
+        return false;
+    }
+    if (JSON.stringify(cached.scanOptions) !== JSON.stringify(current.scanOptions)) {
         return false;
     }
     return cached.signature === moduleSignature(current.modules);

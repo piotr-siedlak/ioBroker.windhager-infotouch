@@ -8,7 +8,7 @@ możliwości sterownika.
 > [DEVICE_SUPPORT.md](DEVICE_SUPPORT.md).
 
 - **Tylko lokalnie** - HTTP(S) w sieci LAN, bez chmury i bez WindhagerConnect.
-- **Domyślnie tylko odczyt.** Zapis wymaga trzech niezależnych zgód i jest potwierdzany odczytem zwrotnym.
+- **Domyślnie tylko odczyt.** Zapis wymaga dwóch Twoich zgód oraz flagi zapisu ustawionej przez sterownik i jest potwierdzany odczytem zwrotnym.
 - **Wykrywa to, co oferuje sterownik** (moduły, funkcje, punkty danych, zakresy, wyliczenia, flagi zapisu).
   Kocioł gazowy za InfoWIN Touch to instalacja autora, ale projekty źródłowe uznają obsługę gazu za niezweryfikowaną,
   więc adapter nie obiecuje niczego specyficznego dla gazu.

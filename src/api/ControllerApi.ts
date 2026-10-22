@@ -26,6 +26,8 @@ export interface GroupReadResult {
     lon: LonVariable[];
     /** Number of items that could not be parsed. */
     skipped: number;
+    /** A paging request failed; the result holds only the entries received before it. */
+    incomplete?: boolean;
 }
 
 /**

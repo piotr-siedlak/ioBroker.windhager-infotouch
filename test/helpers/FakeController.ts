@@ -21,6 +21,10 @@ export interface FakeBehaviour {
     rejectWritesWith?: number;
     /** Add latency to every answer. */
     delayMs?: number;
+    /** Writes become visible only after this many further lookup reads (slow apply). */
+    applyAfterReads?: number;
+    /** Send the body this slowly (one byte per interval, ms) to defeat idle timeouts. */
+    dripMs?: number;
 }
 
 export interface Fixture {
@@ -46,6 +50,7 @@ export class FakeController {
     /** OID -> current value; PUT /api/1.0/datapoint mutates it and lookup responses reflect it. */
     public values = new Map<string, string>();
     public challenges = 0;
+    private pending: { oid: string; value: string; reads: number } | null = null;
     private server: http.Server | null = null;
     private active = 0;
     private nonce = randomBytes(8).toString('hex');
@@ -105,7 +110,21 @@ export class FakeController {
 
     private send(res: http.ServerResponse, status: number, body: string, type = 'application/json'): void {
         res.writeHead(status, { 'Content-Type': type });
-        res.end(body);
+        const drip = this.behaviour.dripMs;
+        if (!drip) {
+            res.end(body);
+            return;
+        }
+        let i = 0;
+        const timer = setInterval(() => {
+            if (i >= body.length || res.destroyed) {
+                clearInterval(timer);
+                res.end();
+                return;
+            }
+            res.write(body[i++]);
+        }, drip);
+        res.on('close', () => clearInterval(timer));
     }
 
     private async handle(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -175,6 +194,10 @@ export class FakeController {
             return;
         }
         if (req.method === 'GET' && path.startsWith('/api/1.0/lookup')) {
+            if (this.pending && --this.pending.reads < 0) {
+                this.values.set(this.pending.oid, this.pending.value);
+                this.pending = null;
+            }
             const key = path.slice('/api/1.0/lookup'.length);
             const offset = url.searchParams.get('offset');
             const paged = this.fixture.paged?.[key];
@@ -214,7 +237,9 @@ export class FakeController {
                 this.send(res, 400, '{}');
                 return;
             }
-            if (!this.behaviour.ignoreWrites) {
+            if (this.behaviour.applyAfterReads) {
+                this.pending = { oid: parsed.OID, value: parsed.value, reads: this.behaviour.applyAfterReads };
+            } else if (!this.behaviour.ignoreWrites) {
                 this.values.set(parsed.OID, parsed.value);
             }
             this.send(res, 200, '{}');

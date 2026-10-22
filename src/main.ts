@@ -5,7 +5,7 @@ import { HttpClient } from './api/HttpClient';
 import { detectProtocol, type DetectionResult } from './api/ProtocolDetector';
 import { categorize, indexCatalog, isCacheValid, summarize, type CatalogIndex } from './discovery/CapabilityRegistry';
 import { scanSystem } from './discovery/SystemScanner';
-import { CATALOG_SCHEMA_VERSION, type Catalog } from './models/Datapoint';
+import { CATALOG_SCHEMA_VERSION, scanFingerprint, type Catalog } from './models/Datapoint';
 import { CommandService } from './services/CommandService';
 import { DiagnosticsService } from './services/DiagnosticsService';
 import { PollingService, type PollTarget } from './services/PollingService';
@@ -192,8 +192,13 @@ class WindhagerAdapter extends utils.Adapter {
         if (cached) {
             const modules = await api.listModules();
             const maxAge = this.cfg.cacheMaxAgeHours * 3_600_000;
-            if (isCacheValid(cached, { modules, version: detection.controller?.version ?? null }, maxAge)) {
-                this.logSafe('info', 'Using cached discovery (module list and firmware unchanged)');
+            const current = {
+                modules,
+                version: detection.controller?.version ?? null,
+                scanOptions: scanFingerprint({ excludedNodes: this.cfg.excludedNodes, includeLon: this.cfg.pollLon }),
+            };
+            if (isCacheValid(cached, current, maxAge)) {
+                this.logSafe('info', 'Using cached discovery (module list, firmware and discovery options unchanged)');
                 return cached;
             }
             this.logSafe('info', 'Cached discovery is outdated - rescanning');
@@ -231,7 +236,7 @@ class WindhagerAdapter extends utils.Adapter {
                 const start = `${this.namespace}.${prefix}`;
                 const view = await this.getObjectViewAsync('system', 'state', {
                     startkey: start,
-                    endkey: `${start}香`,
+                    endkey: `${start}\u9999`,
                 });
                 return (view.rows ?? []).map(row => ({
                     id: row.id.slice(this.namespace.length + 1),
@@ -319,6 +324,9 @@ class WindhagerAdapter extends utils.Adapter {
                     void this.setConnected(false);
                     void this.setStateAsync('info.lastError', { val: err.message, ack: true });
                 },
+                onGroupError: (group, err) => {
+                    this.logSafe('debug', `Group ${group.key} skipped this cycle: ${err.message}`);
+                },
                 onCycle: (_category, _ms, ok) => {
                     if (ok) {
                         void this.setStateAsync('info.lastSuccessfulPoll', {
@@ -388,7 +396,15 @@ class WindhagerAdapter extends utils.Adapter {
         this.busy = true;
         try {
             this.polling?.stop();
-            this.catalog = await this.scan();
+            try {
+                this.catalog = await this.scan();
+            } catch (err) {
+                // Keep serving the previous catalog: a failed rescan must not silently stop polling.
+                if (this.catalog) {
+                    await this.startServices();
+                }
+                throw err;
+            }
             await this.startServices();
         } finally {
             this.busy = false;
@@ -456,7 +472,10 @@ class WindhagerAdapter extends utils.Adapter {
         try {
             switch (obj.command) {
                 case 'testConnection': {
-                    const raw = (obj.message ?? {}) as Partial<AdapterConfig>;
+                    // The admin form sends unsaved connection fields but never the password (it would travel in
+                    // clear text over the message bus and break the JSON template if it contained quotes).
+                    const raw = { ...((obj.message ?? {}) as Partial<AdapterConfig>) };
+                    delete raw.password;
                     const { config, problems } = normalizeConfig({
                         ...(this.config as unknown as Partial<AdapterConfig>),
                         ...raw,
@@ -492,8 +511,8 @@ class WindhagerAdapter extends utils.Adapter {
                 case 'inventory':
                     reply(
                         this.catalog
-                            ? { ok: true, ...summarize(this.catalog) }
-                            : { ok: false, message: 'No catalog yet' },
+                            ? { ok: true, ...summarize(this.catalog), result: JSON.stringify(summarize(this.catalog)) }
+                            : { ok: false, result: 'No discovery data yet' },
                     );
                     break;
                 case 'exportDiagnostics':

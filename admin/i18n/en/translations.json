@@ -40,6 +40,7 @@
     "Transport": "Transport",
     "Unconverted controller strings, read-only": "Unconverted controller strings, read-only",
     "User name": "User name",
+    "Uses the saved password - save first if you changed it": "Uses the saved password - save first if you changed it",
     "Verify TLS certificate": "Verify TLS certificate",
     "Verify by reading back after write": "Verify by reading back after write",
     "Write allow-list (OIDs)": "Write allow-list (OIDs)"

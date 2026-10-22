@@ -31,7 +31,7 @@ Example (synthetic): `modules.node_16.fn_0.grp_3.dp_21_0`
 | `native`                   | `key`, `oid`, `typeId`, `subtypeId`, `unitId`, `writeProtected`, `stale`                                                                                                                      |
 
 Values are `ack: true`. Quality `q = 0` when fresh, `0x42` when the controller is offline (last value kept) or the
-datapoint disappeared after a rescan (`native.stale = true`; value `null`). Placeholder values (`-`, empty) become `null`.
+datapoint disappeared after a rescan (`native.stale = true`; the value is set to `null`, history adapters keep past values). Placeholder values (`-`, empty) become `null`.
 
 Optional trees: `raw.<key>` (strings), `lon.node_..nv_<i>` (raw strings with `native.snvtName`), `schedules.<key>` (verbatim JSON, experimental).
 

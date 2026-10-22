@@ -254,6 +254,12 @@ export class HttpClient {
                     res.on('error', e => reject(connectionError(e.message)));
                 },
             );
+            // `timeout` above only fires on an idle socket; this bounds the whole exchange (slow-drip responses).
+            const deadline = setTimeout(
+                () => req.destroy(timeoutError(this.options.timeoutMs)),
+                this.options.timeoutMs,
+            );
+            req.on('close', () => clearTimeout(deadline));
             req.on('timeout', () => req.destroy(timeoutError(this.options.timeoutMs)));
             req.on('error', e => {
                 if (e instanceof Error && 'kind' in e) {

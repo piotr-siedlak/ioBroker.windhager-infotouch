@@ -6,7 +6,7 @@ Local, capability-driven ioBroker adapter for **Windhager InfoWIN Touch / MES IN
 > synthetic fake controller. Read [DEVICE_SUPPORT.md](DEVICE_SUPPORT.md) before connecting it to a heating system.
 
 - **Local only** - talks HTTP(S) to the controller on your LAN. No cloud, no WindhagerConnect.
-- **Read-only by default.** Writes need three independent opt-ins (see below) and are verified by reading back.
+- **Read-only by default.** A write needs two opt-ins from you plus the controller's own writable flag (see below), and is verified by reading back.
 - **Discovers what the controller offers** (modules, functions, datapoints, ranges, enums, writable flags) instead
   of hard-coding a boiler model. A gas boiler behind InfoWIN Touch is the maintainer's setup, but upstream projects
   rate gas support as unverified, so nothing gas-specific is promised.
@@ -54,7 +54,7 @@ behaviour on a non-critical value first.
 ## Quality gates
 
 ```bash
-npm run check        # typecheck + lint + 65 unit/integration tests + package tests
+npm run check        # typecheck + lint + 73 unit/integration tests + package tests
 npm run build
 ```
 

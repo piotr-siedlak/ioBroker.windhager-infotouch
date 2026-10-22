@@ -1,6 +1,6 @@
 {
     "name": "iobroker.windhager",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Local-first, read-only-by-default ioBroker adapter for Windhager InfoWIN Touch / MES INFINITY heating controllers",
     "author": {
         "name": "piotr-siedlak",
@@ -35,7 +35,7 @@
         "typecheck": "tsc -p tsconfig.json --noEmit",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "test": "node --import tsx --test \"test/**/*.test.ts\"",
+        "test": "node --import tsx --test test/*.test.ts",
         "test:package": "mocha test/package.js --exit",
         "check": "npm run typecheck && npm run lint && npm test && npm run test:package",
         "audit:deps": "npm audit --omit=dev",

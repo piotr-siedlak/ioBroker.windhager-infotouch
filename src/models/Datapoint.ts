@@ -85,9 +85,20 @@ export interface Catalog {
     modules: ModuleInfo[];
     /** Skipped items (malformed payloads), kept for diagnostics. */
     skipped: number;
+    /** Options the scan ran with; a cache made with different options is not reused. */
+    scanOptions: ScanFingerprint;
 }
 
-export const CATALOG_SCHEMA_VERSION = 1;
+export interface ScanFingerprint {
+    excludedNodes: number[];
+    includeLon: boolean;
+}
+
+export function scanFingerprint(options: { excludedNodes: ReadonlySet<number>; includeLon: boolean }): ScanFingerprint {
+    return { excludedNodes: [...options.excludedNodes].sort((a, b) => a - b), includeLon: options.includeLon };
+}
+
+export const CATALOG_SCHEMA_VERSION = 2;
 
 export function moduleSignature(modules: Array<Pick<ModuleInfo, 'nodeId' | 'programId' | 'neuronId'>>): string {
     return modules
