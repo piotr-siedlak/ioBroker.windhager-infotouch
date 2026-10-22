@@ -8,7 +8,7 @@ against real hardware. Start with `RESEARCH.md` (evidence levels), then the code
 1. **Scaffold was hand-built**, not generated: `@iobroker/create-adapter@3.1.5` failed because a registry request
    (`/-/package/.../dist-tags`) timed out from the sandbox. Compare against the official template for anything missing
    (e.g. `.vscode`, `admin/` tsconfig, `release-script`, `.github` auto-merge, `test/mocha.setup`).
-2. **Repo does not exist on GitHub yet** (SSH auth works as `piotr-siedlak`; `gh` was not installed, so it could not be created).
+2. **Repo name is `ioBroker.windhager-infotouch`**, not `ioBroker.windhager` (the ioBroker checker expects `ioBroker.<adapter name>`; decide whether to rename the repo).
 3. `@iobroker/repochecker` was **not run** (needs a reachable public repo). Run it once the repo exists.
 4. Semantic namespaces from the brief (`boilers.*`, `heatingCircuits.*`, `buffers.*`, `dhw.*`, `system.*`) are **not**
    implemented on purpose (no verified `fctType` meaning for gas). Decide if that is acceptable for a first beta.
