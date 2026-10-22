@@ -21,6 +21,8 @@ jobs:
             - run: npm run lint
             - run: npm test
             - run: npm run build
+            # build/ is committed so the adapter installs straight from GitHub; it must match the sources.
+            - run: git diff --exit-code -- build/
             - run: npm run test:package
 
     integration:

@@ -21,8 +21,17 @@ iobroker upload windhager
 iobroker add windhager
 ```
 
-If the build output is missing (`build/main.js`), run `npm install && npm run build` inside
-`node_modules/iobroker.windhager`; releases will ship `build/` prebuilt.
+The compiled `build/` folder is committed, so no build step is needed on the ioBroker host.
+
+**Installing via Admin (custom URL / GitHub) or `iobroker url`:** ioBroker derives the adapter name from the
+repository name. While the repository is called `ioBroker.windhager-infotouch` but the adapter is `windhager`, pass
+the name explicitly, otherwise the install fails with `Cannot install ...: 0` (exit code 25):
+
+```bash
+iobroker url https://github.com/piotr-siedlak/ioBroker.windhager-infotouch windhager
+```
+
+Renaming the repository to `ioBroker.windhager` removes the need for the extra argument.
 
 ## First run
 
